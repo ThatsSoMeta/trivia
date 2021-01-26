@@ -15,7 +15,7 @@ const deleteQuestion = (req: Request, res: Response, next: NextFunction) => {
     .catch((error: Error) => console.error(error))
 };
 
-const createQuestion = (req: Request, res: Response, next: NextFunction) => {
+const createQuestion = async (req: Request, res: Response, next: NextFunction) => {
   let {
     category,
     difficulty,
@@ -35,7 +35,7 @@ const createQuestion = (req: Request, res: Response, next: NextFunction) => {
     incorrect_answers,
   });
 
-  return newQuestion
+  await newQuestion
     .save()
     .then((result) => {
       return res.status(201).json({
@@ -49,6 +49,49 @@ const createQuestion = (req: Request, res: Response, next: NextFunction) => {
       });
     });
 };
+
+
+const updateQuestion = async (req: Request, res: Response, next: NextFunction) => {
+  let {
+    category,
+    difficulty,
+    type,
+    question,
+    correct_answers,
+    incorrect_answers,
+  } = req.body;
+
+  const updatedQuestion = {
+    category,
+    difficulty,
+    type,
+    question,
+    correct_answers,
+    incorrect_answers,
+  };
+
+  await Question.findByIdAndUpdate(
+    req.params.questionID,
+    updatedQuestion,
+    {
+      new: true,
+    },
+    (error, data) => {
+      if(error) {
+        console.error(error)
+        return res.status(500).json({
+          message: error.message,
+          error
+        })
+      } else {
+        console.log('Successfully updated question:', data)
+        return res.status(201).json({
+          updatedQuestion: data
+        });
+      }
+    }
+  )
+}
 
 const getQuestions = (req: Request, res: Response, next: NextFunction) => {
   Question.find(req.query)
@@ -67,15 +110,5 @@ const getQuestions = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-const updateQuestion = (req: Request, res: Response, next: NextFunction) => {
-  console.log("Params in controllers: ", req.params)
-  console.log("Body: ", req.body)
-  Question.findByIdAndUpdate(req.params.questionID, req.body)
-  .then((data: Response) => {
-    console.log(data)
-    return data
-  })
-  .catcn((error: Error) => console.error(error))
-}
 
 export default { getQuestions, createQuestion, deleteQuestion, updateQuestion };

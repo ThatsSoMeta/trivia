@@ -85,7 +85,10 @@ export const QuizGame = () => {
     if (!gameOver) {
       const answers = currentAnswer;
       const correct = questions[number].correct_answers === answers;
-      if (correct) setScore(prev => prev + 1);
+      if (correct) {
+
+        setScore(prev => prev + 1)
+      };
       const answerObject: AnswerObject = {
         question: questions[number].question,
         answers,
@@ -109,15 +112,33 @@ export const QuizGame = () => {
   return (
     <QuizGameStyle>
       <h1>Welcome to Trivia!</h1>
-      <div id='difficulty-selector'>
-       <h3>Choose Difficulty:</h3>
-        <input type='checkbox' name='easy'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.EASY)} />
-        <label htmlFor='easy'>Easy</label>
-        <input type='checkbox' name='medium'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.MEDIUM)} />
-        <label htmlFor='medium'>Medium</label>
-        <input type='checkbox' name='hard'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.HARD)} />
+      {gameOver &&
+      <div id="game-options">
+        <div id='difficulty-selector'>
+          <h3>Difficulty:</h3>
+            <div>
+              <input type='checkbox' name='easy'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.EASY)} />
+              <label htmlFor='easy'>Easy</label>
+            </div>
+            <div>
+              <input type='checkbox' name='medium'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.MEDIUM)} />
+              <label htmlFor='medium'>Medium</label>
+            </div>
+            <div>
+              <input type='checkbox' name='hard'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.HARD)} />
+              <label htmlFor='hard'>Hard</label>
+            </div>
+        </div>
+        <div id='difficulty-selector'>
+          <h3>Categories:</h3>
+            
+            <div>
+              <input type='checkbox' name='easy'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.EASY)} />
+              <label htmlFor='easy'>Easy</label>
+            </div>
+        </div>
       </div>
-        <label htmlFor='hard'>Hard</label>
+      }
       {gameOver || userAnswers.length === TOTAL_QUESTIONS ? (
       <button className="start" onClick={startTrivia}>
         Start!

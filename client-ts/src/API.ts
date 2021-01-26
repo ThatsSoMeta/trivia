@@ -27,6 +27,16 @@ export enum Difficulty {
   UNSET = ""
 }
 
+export enum Category {
+  MOVIES = 'movies',
+  MUSIC = 'music',
+  TELEVISION = 'television',
+  GEOGRAPHY = 'geography',
+  MATH = 'math',
+  LITERATURE = 'literature',
+  OTHER = 'other'
+}
+
 export enum QuestionType {
   MULTIPLE_CHOICE = 'multiple-choice',
   TRUE_FALSE = 'true-false',
@@ -138,22 +148,20 @@ export const deleteQuestion = async (_id: string) => {
   .catch((error) => console.error(error))
 }
 
-export const updateQuestion = async (question: Question) => {
-  console.log("Question being submitted: ", JSON.stringify(question))
-  const endpoint = `${BASE_URL}/questions/edit/${question._id}`;
+export const updateQuestion = async (_id: Question["_id"], updateInfo: object = {}) => {
+  console.log("Updates to question: ", JSON.stringify(updateInfo))
+  const endpoint = `${BASE_URL}/questions/edit/${_id}`;
   await fetch(
     endpoint,
     {
       method: 'PATCH',
       headers: {
-        "Content-type": "application/json"
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(question)
+      body: JSON.stringify(updateInfo)
     }
   )
-  .then(data => {
-    console.log(data)
-    return data
-  })
+  .then(response => response.json())
+  .then(data => console.log(data))
   .catch((error) => console.error(error))
 }

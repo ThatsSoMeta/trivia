@@ -1,14 +1,4 @@
-import styled, { createGlobalStyle } from "styled-components";
-
-export const CreateQuestionPageStyle = createGlobalStyle`
-  h1 {
-    text-shadow: 2px 2px 5px black;
-  }
-
-  header {
-    padding: 0 30px;
-  }
-`
+import styled from "styled-components";
 
 export const CreateQuestionStyle = styled.div`
   background-color: rgba(0, 0, 0, .75);
@@ -27,9 +17,17 @@ export const CreateQuestionStyle = styled.div`
     padding: 5px;
   }
 
+  button, .button {
+    background-image: linear-gradient(45deg, navy, blue)
+  }
+
   .field-label {
     font-size: 1.5rem;
     line-height: 3rem;
+  }
+
+  #kids {
+    background-image: linear-gradient(45deg, indigo, purple);
   }
 
   #easy, #true {
@@ -42,24 +40,6 @@ export const CreateQuestionStyle = styled.div`
 
   #hard, #false {
     background-image: linear-gradient(45deg, darkred, red);
-  }
-
-  button, .button {
-    background-image: linear-gradient(45deg, navy 40%, blue);
-    color: white;
-    text-shadow: 2px 2px 5px black;
-    margin: 10px;
-    outline: none;
-    cursor: pointer;
-    :hover {
-      box-shadow: 0 0 15px cyan
-    }
-  }
-
-  h2 {
-    font-size: 2rem;
-    text-shadow: 2px 2px 5px black;
-    color: white
   }
 
   .question-input {
@@ -84,9 +64,9 @@ export const CreateQuestionStyle = styled.div`
     height: 6rem;
   }
 
-  #correct-answer,
-  #incorrect-answer {
-    width: 40%;
+  .correct-answer,
+  .incorrect-answer {
+    width: 60%;
   }
 
   #category {
@@ -95,8 +75,8 @@ export const CreateQuestionStyle = styled.div`
     width: 40%;
   }
 
-  #correct-answer: focus,
-  #correct-answer: hover {
+  .correct-answer: focus,
+  .correct-answer: hover {
     box-shadow: 0 0 15px lightgreen
   }
 

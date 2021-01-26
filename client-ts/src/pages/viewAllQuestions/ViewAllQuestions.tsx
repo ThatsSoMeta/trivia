@@ -45,6 +45,9 @@ export const ViewQuestionsPage = () => {
           }
         </tbody>
       </table>
+      <a href='/questions/create' >
+        <button>New Question</button>
+      </a>
     </ViewQuestionsStyle>
   )
 }

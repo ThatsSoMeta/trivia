@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import Question from '../interfaces/question';
+import IQuestion from '../interfaces/question';
 
 const QuestionSchema: Schema = new Schema(
     {
@@ -22,6 +22,16 @@ const QuestionSchema: Schema = new Schema(
             type: String,
             required: true,
         },
+        times_correct: {
+            type: Number,
+            required: true,
+            default: 0,
+        },
+        times_incorrect: {
+            type: Number,
+            required: true,
+            default: 0,
+        },
         correct_answers: {
             type: Array,
             required: true,
@@ -36,8 +46,8 @@ const QuestionSchema: Schema = new Schema(
     }
 );
 
-QuestionSchema.post<Question>('save', function () {
+QuestionSchema.post<IQuestion>('save', function () {
     console.log(`Question saved: ${this.question}`)
 })
 
-export default mongoose.model<Question>('Question', QuestionSchema);
+export default mongoose.model<IQuestion>('Question', QuestionSchema);

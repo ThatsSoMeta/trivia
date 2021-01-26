@@ -7,6 +7,7 @@ import cors from 'cors';
 mongoose.connect("mongodb://localhost/trivia", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useFindAndModify: false,
 });
 
 const db = mongoose.connection;

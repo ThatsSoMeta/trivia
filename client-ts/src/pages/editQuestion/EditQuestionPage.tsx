@@ -1,26 +1,24 @@
-import React, { ChangeEvent, createElement, useEffect, useState } from 'react';
-import { Question, QuestionType, updateQuestion, fetchSomeQuestions, Difficulty } from '../../API';
+import React, { ChangeEvent, useEffect, useState } from 'react';
+import { Question, QuestionType, updateQuestion, fetchSomeQuestions, Difficulty, Category} from '../../API';
 import { EditQuestionPageStyle, EditQuestionStyle } from './EditQuestion.styles'
 import { useParams } from 'react-router-dom';
 
 
 export const EditQuestionsPage = () => {
-    const [categories] = useState(
-        ['movies', 'music', 'television', 'geography', 'other']
-    );
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
     const [question, setQuestion] = useState('');
     const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.UNSET);
     const [type, setType] = useState('');
     const [category, setCategory] = useState('');
     const [newCategory, setNewCategory] = useState('');
-    const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
+    const [correctAnswers, setCorrectAnswers] = useState<string[]>(['']);
     const [incorrectAnswers, setIncorrectAnswers] = useState<string[]>(['', '', '']);
     const [questionID, setQuestionID] = useState('');
     const [message, setMessage] = useState('');
     const [timesCorrect, setTimesCorrect] = useState<number>(0);
     const [timesIncorrect, setTimesIncorrect] = useState<number>(0);
-    const [answers, setAnswers] = useState<string[]>([]);
+    const [updateComplete, setUpdateComplete] = useState<boolean>(false);
 
     const params = useParams()
 
@@ -29,10 +27,13 @@ export const EditQuestionsPage = () => {
         fetchSomeQuestions(params)
         .then(data => {
             data = data[0]
-            console.log("Data on EditPage: ", data)
             setQuestion(data.question)
             setDifficulty(data.difficulty)
-            setCorrectAnswers(data.correct_answers)
+            if (data.correct_answers !== []) {
+                setCorrectAnswers(data.correct_answers)
+            } else {
+                setCorrectAnswers([''])
+            }
             setIncorrectAnswers(data.incorrect_answers)
             setQuestionID(data._id)
             if (data.times_correct) {
@@ -74,7 +75,7 @@ export const EditQuestionsPage = () => {
         setLoading(true);
         const newQuestion: Question = {
             category,
-            correct_answers: correctAnswers,
+            correct_answers: correctAnswers.filter(answer => answer !== ''),
             difficulty,
             question,
             incorrect_answers: [],
@@ -102,24 +103,18 @@ export const EditQuestionsPage = () => {
         if (type === 'choose many') {
             newQuestion.incorrect_answers = [];
             newQuestion.type = QuestionType.CHOOSE_MANY
+        } else {
+            newQuestion.correct_answers = correctAnswers.filter((_, i) => i < 1)
         }
         if (category === 'other') {
             newQuestion.category = newCategory.toLowerCase()
         }
-        await updateQuestion(newQuestion)
+        await updateQuestion(questionID, newQuestion)
         .then(() => {
-            setCategory('');
-            setCorrectAnswers([]);
-            setDifficulty(Difficulty.UNSET);
-            setIncorrectAnswers(['','','']);
-            setNewCategory('');
-            setQuestion('');
-            setType('');
             setMessage('Question Updated!');
-            setAnswers([]);
-        })
-        .then(() => {
+            setUpdateComplete(true)
             setLoading(false)
+            setTimeout(() => window.location.replace('/questions/viewAll'), 3000);
         })
     }
 
@@ -155,41 +150,16 @@ export const EditQuestionsPage = () => {
         }
     }
 
-    const chooseManyAnswersUpdate = (e: Event) => {
+    const updateAnswers = (e: ChangeEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement
         let index = parseInt(target.id)
-        let currentAnswers = [...answers]
+        let currentAnswers = [...correctAnswers]
         currentAnswers[index] = target.value
-        setAnswers(currentAnswers)
+        setCorrectAnswers(currentAnswers)
         }
 
     const addAnswerInput = () => {
-        // setAnswers(prev => [...prev, ''])
-        console.log('Answers: ', answers)
-        console.log('Adding input...')
-        let answersDiv = document.getElementById('choose-many-input');
-        let number = answers.length;
-        if (answersDiv) {
-            answersDiv.innerHTML = '';
-        }
-        for (let i = 0; i <= number; i++) {
-            let input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'choose-many question-input';
-            input.name = `choose-many-answer-${i}`;
-            input.id = `${i}`;
-            if (answers[i]) {
-                input.value = answers[i];
-            }
-            input.placeholder = 'Next Answer';
-            input.addEventListener(
-                'change',
-                (e: Event) => chooseManyAnswersUpdate(e)
-            )
-            // input.addEventListener('blur', () => console.log('Answers: ', answers))
-            answersDiv?.appendChild(input)
-            answersDiv?.appendChild(document.createElement('br'))
-        }
+        setCorrectAnswers(prev => [...prev, ''])
     }
 
     return(
@@ -199,10 +169,26 @@ export const EditQuestionsPage = () => {
                 <h1>Edit Question</h1>
             </header>
             <EditQuestionStyle>
-                {loading && <h3>Loading...</h3>}
+                {loading ?
+                <h3>Loading...</h3> :
+                updateComplete && message ?
+                <h3>{message}</h3> :
                 <form>
                     <label className='field-label'>Difficulty:</label>
                     <br />
+                    <input
+                    style={
+                        difficulty === 'kids' ?
+                        {boxShadow: '0 0 15px cyan'} :
+                        {}
+                    }
+                    className="button"
+                    type="button"
+                    value={Difficulty.KIDS}
+                    name="kids"
+                    id="kids"
+                    onClick={() => toggleDifficulty(Difficulty.KIDS)}
+                    />
                     <input
                     style={
                         difficulty === 'easy' ?
@@ -310,8 +296,9 @@ export const EditQuestionsPage = () => {
                         )
                     )}
                     <br />
-                    {!categories.includes(category) ||
-                    category === 'other' ?
+                    {category !== '' &&
+                    (!categories.includes(category) ||
+                    category === 'other') ?
                     <>
                         <input
                         type='text'
@@ -442,15 +429,30 @@ export const EditQuestionsPage = () => {
                     type === 'open ended' ?
                     <input type='text'
                     className='question-input'
-                    id='correct-answer'
+                    id='0'
                     placeholder='Correct answer...'
+                    defaultValue=''
                     value={correctAnswers[0]}
-                    onChange={(e) => setCorrectAnswers([e.currentTarget.value, ...correctAnswers])}
+                    onChange={(e:ChangeEvent<HTMLInputElement>) => updateAnswers(e)}
                     /> :
                     type === 'choose many' ?
                     <div>
                         <div id='choose-many-input'>
-                            <p>Answers go here</p>
+                            {correctAnswers.map((_, index) => {
+                                let name = `choose-many-answers-${index}`
+                                return (
+                                <input
+                                type='text'
+                                name={name}
+                                className='question-input choose-many'
+                                id={String(index)}
+                                key={index}
+                                defaultValue=''
+                                value={correctAnswers[index]}
+                                placeholder='Correct answer...'
+                                onChange={(e:ChangeEvent<HTMLInputElement>) => updateAnswers(e)}
+                                />)
+                            })}
                         </div>
                         <button onClick={(e) => {
                             e.preventDefault()
@@ -464,16 +466,16 @@ export const EditQuestionsPage = () => {
                     
                     <br /><br />
                 </form>
+                }
             </EditQuestionStyle>
             <input
             className="button"
             type="submit"
             value="Save Question"
             id="submit"
-            disabled={loading}
+            disabled={loading || updateComplete}
             onClick={() => handleSubmit()}
             />
-            {message && <p>{message}</p>}
         </>
     )
 }

@@ -5,9 +5,11 @@ export const NavBarStyle = styled.div`
   margin: 0;
   display: flex;
   justify-content: space-around;
+  width: 100%;
+
   a {
     text-decoration: none;
-    font-size: 1.5rem;
+    font-size: 1rem;
     color: white;
     :hover {
       color: cyan;

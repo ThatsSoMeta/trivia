@@ -21,15 +21,22 @@ export const ViewQuestionsStyle = styled.div`
     cursor: pointer;
   }
 
-  #header-row {
-    font-size: 2rem;
+  th {
+    font-size: 1rem;
     background-color: black;
     border-radius: 10px;
+    padding: 10px;
   }
 
   td {
     padding: 10px;
     text-align: center;
-    font-size: 2rem;
   }
+
+  #difficulty {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
 `

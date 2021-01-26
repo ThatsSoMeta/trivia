@@ -1,17 +1,18 @@
-import React from 'react';
-import { Question, deleteQuestion } from '../../API';
+import { useEffect, useState } from 'react';
+import { Question, deleteQuestion, QuestionType } from '../../API';
 import { capitalize } from '../../utils';
 import { QuestionIndexStyle } from './QuestionIndex.styles'
 import EditIcon from '../../images/edit-blue.png';
 import DeleteIcon from '../../images/delete-red.png';
-import { AnswerObject } from '../../pages';
-
 
 export interface IQuestionProps {
   question: Question
 }
 
 export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) => {
+  const [typeLabelText, setTypeLabelText] = useState<string>('default')
+  const [correctAnswerRate, setCorrectAnswerRate] = useState<number>(0)
+
   let {
     category,
     correct_answers,
@@ -22,6 +23,28 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
     times_incorrect,
     _id
   } = props.question
+
+
+  useEffect(() => {
+    switch(type) {
+      case QuestionType.CHOOSE_MANY:
+        setTypeLabelText('Many');
+        break;
+      case QuestionType.MULTIPLE_CHOICE:
+        setTypeLabelText('MC');
+        break;
+      case QuestionType.OPEN_ENDED:
+        setTypeLabelText('Open')
+        break;
+      case QuestionType.TRUE_FALSE:
+        setTypeLabelText('T/F')
+        break;
+    };
+
+    if (times_correct + times_incorrect > 0) {
+      setCorrectAnswerRate(times_correct / (times_correct + times_incorrect))
+    }
+  }, [times_correct, times_incorrect, type])
 
   const toggleDelete = () => {
     if (window.confirm(
@@ -49,8 +72,11 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
       <td id='category'>{capitalize(category)}</td>
       <td id='question'>{capitalize(question)}</td>
       <td id='answer'>{displayAnswerString(correct_answers)}</td>
-      <td id='difficulty'>{capitalize(difficulty)}</td>
-      <td id='type'>{type}</td>
+      <td id='difficulty'>
+        <span>{capitalize(difficulty)}</span>
+        <span id='correct-rate'>({correctAnswerRate * 100}% correct)</span>
+      </td>
+      <td id='type'>{typeLabelText}</td>
       <td id='edit'>
         <a href={editURL}>
           <img src={EditIcon} alt='Edit' />

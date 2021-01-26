@@ -86,7 +86,7 @@ export const EditQuestionStyle = styled.div`
 
   #correct-answer,
   #incorrect-answer {
-    width: 40%;
+    width: 60%;
   }
 
   #category {

@@ -1,6 +1,3 @@
-import React from 'react';
-import { InputType } from 'zlib';
-
 export const shuffleArray = (array: any[]) =>
     [...array].sort(() => Math.random() - 0.5);
 
