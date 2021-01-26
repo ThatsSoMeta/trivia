@@ -6,24 +6,24 @@ const QuestionSchema: Schema = new Schema(
         category: {
             type: String,
             required: true,
-            default: 'misc'
+            default: 'other'
         },
         difficulty: {
             type: String,
             required: true,
-            enum: ['easy', 'medium', 'hard'],
+            enum: ['kids', 'easy', 'medium', 'hard'],
         },
         type: {
             type: String,
             required: true,
-            enum: ['open-ended', 'multiple-choice', 'true-false'],
+            enum: ['open-ended', 'multiple-choice', 'true-false', 'choose-many'],
         },
         question: {
             type: String,
             required: true,
         },
-        correct_answer: {
-            type: String,
+        correct_answers: {
+            type: Array,
             required: true,
         },
         incorrect_answers: {

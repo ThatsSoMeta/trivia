@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.post('/new', controller.createQuestion);
 router.get('/', controller.getQuestions);
-router.delete('/delete/:questionID', controller.deleteQuestion)
+router.patch('/edit/:questionID', controller.updateQuestion);
+router.delete('/delete/:questionID', controller.deleteQuestion);
 
 export = router;

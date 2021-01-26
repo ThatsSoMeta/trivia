@@ -1,6 +1,6 @@
 import React from 'react';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import { QuizGame, CreateQuestionsPage, HomePage, ViewQuestionsPage } from '../../pages';
+import { BrowserRouter, Route } from 'react-router-dom';
+import { QuizGame, CreateQuestionsPage, HomePage, ViewQuestionsPage, EditQuestionsPage } from '../../pages';
 
 export const Navigation = () => {
   return (
@@ -15,12 +15,16 @@ export const Navigation = () => {
         component={QuizGame}
       />
       <Route
-        path='/create/question'
+        path='/questions/create'
         component={CreateQuestionsPage}
       />
       <Route
-        path='/view/questions'
+        path='/questions/viewAll'
         component={ViewQuestionsPage}
+      />
+      <Route
+        path='/questions/edit/:questionID'
+        component={EditQuestionsPage}
       />
     </BrowserRouter>
   )

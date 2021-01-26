@@ -7,10 +7,14 @@ export const NavBarStyle = styled.div`
   justify-content: space-around;
   a {
     text-decoration: none;
-    font-size: 1rem;
+    font-size: 1.5rem;
     color: white;
     :hover {
       color: cyan;
     }
+  }
+
+  .navButton {
+    flex-basis: 20%;
   }
 `

@@ -7,7 +7,14 @@ export const ViewQuestionsStyle = styled.div`
 
   #question-table {
     color: white;
-    width: 80%;
+    min-width: 80%;
+    margin: 10px;
+    tr:nth-child(even) {
+      background-color: rgb(35, 35, 35);
+    }
+    tr:nth-child(odd) {
+      background-color: rgb(30, 30, 30);
+    }
   }
 
   tr {
@@ -15,7 +22,7 @@ export const ViewQuestionsStyle = styled.div`
   }
 
   #header-row {
-    font-size: 1.5rem;
+    font-size: 2rem;
     background-color: black;
     border-radius: 10px;
   }

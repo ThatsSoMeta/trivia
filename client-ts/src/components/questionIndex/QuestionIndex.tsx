@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
-import { Question, deleteQuestion, fetchAllQuestions } from '../../API';
+import React from 'react';
+import { Question, deleteQuestion } from '../../API';
 import { capitalize } from '../../utils';
 import { QuestionIndexStyle } from './QuestionIndex.styles'
 import EditIcon from '../../images/edit-blue.png';
 import DeleteIcon from '../../images/delete-red.png';
+import { AnswerObject } from '../../pages';
 
 
-interface IQuestionProps {
-  question: Question,
-  setQuestions: (questions: Question[]) => void,
-  questions: Question[]
+export interface IQuestionProps {
+  question: Question
 }
 
 export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) => {
   let {
     category,
-    correct_answer,
+    correct_answers,
     question,
-    incorrect_answers,
     type,
     difficulty,
+    times_correct,
+    times_incorrect,
     _id
   } = props.question
 
@@ -29,15 +29,18 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
     )) {
       console.log('Deleting Question: ', question)
       deleteQuestion(_id)
-      .then(() => {
-        fetchAllQuestions()
-        .then(data => {
-          props.setQuestions(data)
-        })
-        .catch((error) => console.error(error))
+      .then(data => {
+        console.log("Successfully deleted: ", data)
       })
+      .catch((error) => console.error(error))
     }
   }
+
+  const displayAnswerString = (answer: string[]): string => {
+      return answer.join(', ')
+  }
+
+  const editURL = `/questions/edit/${_id}`
 
   return (
     <QuestionIndexStyle
@@ -45,11 +48,13 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
     >
       <td id='category'>{capitalize(category)}</td>
       <td id='question'>{capitalize(question)}</td>
-      <td id='answer'>{capitalize(correct_answer)}</td>
+      <td id='answer'>{displayAnswerString(correct_answers)}</td>
       <td id='difficulty'>{capitalize(difficulty)}</td>
       <td id='type'>{type}</td>
       <td id='edit'>
-        <img src={EditIcon} alt='Edit' />
+        <a href={editURL}>
+          <img src={EditIcon} alt='Edit' />
+        </a>
       </td>
       <td id='delete' onClick={() => toggleDelete()}>
         <img src={DeleteIcon} alt='Delete' />

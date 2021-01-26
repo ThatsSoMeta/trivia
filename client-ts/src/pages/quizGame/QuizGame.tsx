@@ -6,12 +6,12 @@ import {QuizGameStyle} from './QuizGame.styles'
 
 export type AnswerObject = {
   question: string;
-  answer: string;
+  answers: string[];
   correct: boolean;
-  correct_answer: string;
+  correct_answers: string[];
 }
 
-const TOTAL_QUESTIONS = 1
+const TOTAL_QUESTIONS = 3
 
 export const QuizGame = () => {
   const [loading, setLoading] = useState(false);
@@ -20,33 +20,77 @@ export const QuizGame = () => {
   const [userAnswers, setUserAnswers] = useState<AnswerObject[]>([]);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(true);
+  const [difficulty, setDifficulty] = useState<Difficulty[]>([]);
+  const [kids, setKids] = useState(false)
+  const [easy, setEasy] = useState(false);
+  const [medium, setMedium] = useState(false);
+  const [hard, setHard] = useState(false);
+  const [currentAnswer, setCurrentAnswer] = useState<string[]>([])
+  const [type, setType] = useState('')
+  
+  const toggleDifficulty = (option: Difficulty) => {
+  switch(option) {
+    case Difficulty.KIDS:
+      setKids(!kids)
+      console.log(kids)
+      break;
+    case Difficulty.EASY:
+      setEasy(!easy)
+      console.log(easy)
+      break;
+    case Difficulty.MEDIUM:
+      setMedium(!medium)
+      console.log(medium)
+      break;
+    case Difficulty.HARD:
+      setHard(!hard)
+      console.log(hard)
+      break;
+  }
+}
 
   const startTrivia = async () => {
     setLoading(true);
     setGameOver(false);
 
+    if (kids) {
+      setDifficulty((prev) => [...prev, Difficulty.KIDS])
+    }
+    if (easy) {
+      setDifficulty((prev) => [...prev, Difficulty.EASY])
+    }
+    if (medium) {
+      setDifficulty((prev) => [...prev, Difficulty.MEDIUM])
+    }
+    if (hard) {
+      setDifficulty((prev) => [...prev, Difficulty.HARD])
+    }
+
     const newQuestions = await fetchQuizQuestions(
       TOTAL_QUESTIONS,
-      Difficulty.EASY
-    );
+      difficulty
+    );  
 
     setQuestions(newQuestions);
     setScore(0);
     setUserAnswers([]);
     setNumber(0)
     setLoading(false)
-  }
+    setEasy(false)
+    setMedium(false)
+    setHard(false)
+  }  
 
   const checkAnswer = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!gameOver) {
-      const answer = e.currentTarget.value;
-      const correct = questions[number].correct_answer === answer;
+      const answers = currentAnswer;
+      const correct = questions[number].correct_answers === answers;
       if (correct) setScore(prev => prev + 1);
-      const answerObject = {
+      const answerObject: AnswerObject = {
         question: questions[number].question,
-        answer,
+        answers,
         correct,
-        correct_answer: questions[number].correct_answer,
+        correct_answers: questions[number].correct_answers,
       };
       setUserAnswers((prev) => [...prev, answerObject])
     }
@@ -58,12 +102,22 @@ export const QuizGame = () => {
       setGameOver(true);
     } else {
       setNumber(nextQuestion)
+      setType(questions[nextQuestion].type)
     }
   }
 
   return (
     <QuizGameStyle>
       <h1>Welcome to Trivia!</h1>
+      <div id='difficulty-selector'>
+       <h3>Choose Difficulty:</h3>
+        <input type='checkbox' name='easy'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.EASY)} />
+        <label htmlFor='easy'>Easy</label>
+        <input type='checkbox' name='medium'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.MEDIUM)} />
+        <label htmlFor='medium'>Medium</label>
+        <input type='checkbox' name='hard'defaultChecked={false} onChange={() => toggleDifficulty(Difficulty.HARD)} />
+      </div>
+        <label htmlFor='hard'>Hard</label>
       {gameOver || userAnswers.length === TOTAL_QUESTIONS ? (
       <button className="start" onClick={startTrivia}>
         Start!
@@ -85,6 +139,7 @@ export const QuizGame = () => {
         answers={questions[number].answers}
         userAnswer={userAnswers ? userAnswers[number] : undefined}
         callback={checkAnswer}
+        type={type}
       />)}
       <button
         hidden={gameOver || number === questions.length - 1}

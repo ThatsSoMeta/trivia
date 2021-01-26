@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useHistory, Link } from 'react-router-dom';
 import {HomePageStyle} from './HomePage.styles'
 
@@ -14,7 +14,7 @@ export const HomePage = () => {
       <h1>The Game</h1>
       <Link
       className='button'
-      to='/create/question'
+      to='/questions/create'
       onClick={() => handleClick('/create/question')}
       >
         Create Questions
@@ -28,7 +28,7 @@ export const HomePage = () => {
       </Link>
       <Link
       className='button'
-      to='/view/questions'
+      to='/questions/view'
       onClick={() => handleClick('/view/questions')}
       >
         View Questions

@@ -21,7 +21,7 @@ const createQuestion = (req: Request, res: Response, next: NextFunction) => {
     difficulty,
     type,
     question,
-    correct_answer,
+    correct_answers,
     incorrect_answers,
   } = req.body;
 
@@ -31,7 +31,7 @@ const createQuestion = (req: Request, res: Response, next: NextFunction) => {
     difficulty,
     type,
     question,
-    correct_answer,
+    correct_answers,
     incorrect_answers,
   });
 
@@ -51,43 +51,31 @@ const createQuestion = (req: Request, res: Response, next: NextFunction) => {
 };
 
 const getQuestions = (req: Request, res: Response, next: NextFunction) => {
-  interface Query {
-    question?: string;
-    difficulty?: string;
-    type?: string;
-    category?: string;
-  }
-  let query: Query = {};
-  if (req.query) {
-    let q = req.query;
-    if (q.question) {
-      query.question = (q as any).question;
-    }
-    if (q.difficulty) {
-      query.difficulty = (q as any).difficulty;
-    }
-    if (q.type) {
-      query.type = (q as any).type;
-    }
-    if (q.category) {
-      query.category = (q as any).category;
-    }
-  }
-  console.log(query);
-  Question.find(query)
-    .exec()
-    .then((results: string | any[]) => {
-      return res.status(200).json({
-        results: results,
-        count: results.length,
-      });
-    })
-    .catch((error: Error) => {
-      return res.status(500).json({
-        message: error.message,
-        error,
-      });
+  Question.find(req.query)
+  .exec()
+  .then((results: string | any[]) => {
+    return res.status(200).json({
+      results: results,
+      count: results.length,
     });
+  })
+  .catch((error: Error) => {
+    return res.status(500).json({
+      message: error.message,
+      error,
+    });
+  });
 };
 
-export default { getQuestions, createQuestion, deleteQuestion };
+const updateQuestion = (req: Request, res: Response, next: NextFunction) => {
+  console.log("Params in controllers: ", req.params)
+  console.log("Body: ", req.body)
+  Question.findByIdAndUpdate(req.params.questionID, req.body)
+  .then((data: Response) => {
+    console.log(data)
+    return data
+  })
+  .catcn((error: Error) => console.error(error))
+}
+
+export default { getQuestions, createQuestion, deleteQuestion, updateQuestion };

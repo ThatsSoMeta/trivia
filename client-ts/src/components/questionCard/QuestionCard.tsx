@@ -9,6 +9,7 @@ type Props = {
     userAnswer: AnswerObject | undefined;
     questionNum: number;
     totalQs: number;
+    type: string;
 }
 
 const QuestionCard: React.FC<Props> = ({
@@ -18,14 +19,20 @@ const QuestionCard: React.FC<Props> = ({
     userAnswer,
     questionNum,
     totalQs,
-}) => (
-    <div>
+    type,
+}) => {
+    return (
+    <QuestionStyle>
         <p className="number">
             Question: {questionNum} / {totalQs}
         </p>
         <p dangerouslySetInnerHTML={{__html: question}} />
         <div>
-            {answers.map(answer => (
+            {type === 'choose-many' ?
+            <input type='text' /> :
+            type === 'open ended' ?
+            <input type='text' /> :
+            answers.map(answer => (
                 <div key={answer}>
                     <button disabled={!!userAnswer} onClick={callback} value={answer}>
                         <span dangerouslySetInnerHTML={{ __html: answer }} />
@@ -33,7 +40,8 @@ const QuestionCard: React.FC<Props> = ({
                 </div>
             ))}
         </div>
-    </div>
-);
+    </QuestionStyle>
+    );
+}
 
 export default QuestionCard;

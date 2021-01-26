@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Question, QuestionType, addQuestion, Difficulty } from '../../API';
-import { CreateQuestionPageStyle, CreateQuestionStyle } from './CreateQuestion.styles'
+import React, { ChangeEvent, createElement, useEffect, useState } from 'react';
+import { Question, QuestionType, updateQuestion, fetchSomeQuestions, Difficulty } from '../../API';
+import { EditQuestionPageStyle, EditQuestionStyle } from './EditQuestion.styles'
+import { useParams } from 'react-router-dom';
 
-export const CreateQuestionsPage = () => {
+
+export const EditQuestionsPage = () => {
     const [categories] = useState(
         ['movies', 'music', 'television', 'geography', 'other']
     );
@@ -13,7 +15,60 @@ export const CreateQuestionsPage = () => {
     const [category, setCategory] = useState('');
     const [newCategory, setNewCategory] = useState('');
     const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
-    const [incorrectAnswers, setIncorrectAnswers] = useState<string[]>(['', '', ''])
+    const [incorrectAnswers, setIncorrectAnswers] = useState<string[]>(['', '', '']);
+    const [questionID, setQuestionID] = useState('');
+    const [message, setMessage] = useState('');
+    const [timesCorrect, setTimesCorrect] = useState<number>(0);
+    const [timesIncorrect, setTimesIncorrect] = useState<number>(0);
+    const [answers, setAnswers] = useState<string[]>([]);
+
+    const params = useParams()
+
+    useEffect(() => {
+        setLoading(true);
+        fetchSomeQuestions(params)
+        .then(data => {
+            data = data[0]
+            console.log("Data on EditPage: ", data)
+            setQuestion(data.question)
+            setDifficulty(data.difficulty)
+            setCorrectAnswers(data.correct_answers)
+            setIncorrectAnswers(data.incorrect_answers)
+            setQuestionID(data._id)
+            if (data.times_correct) {
+                setTimesCorrect(data.times_correct)
+            } else {
+                setTimesCorrect(0)
+            }
+            if (data.times_incorrect) {
+                setTimesIncorrect(data.times_incorrect)
+            } else {
+                setTimesIncorrect(0)
+            }
+            if (categories.includes(data.category)) {
+                setCategory(data.category)
+            } else {
+                setCategory('other');
+                setNewCategory(data.category)
+            }
+            switch(data.type) {
+                case "multiple-choice":
+                    setType('multiple choice')
+                    break;
+                case 'true-false':
+                    setType('true or false')
+                    break;
+                case 'open-ended':
+                    setType('open ended')
+                    break;
+                case 'choose-many':
+                    setType('choose many')
+                    break;
+            }
+        })
+        .catch((error) => console.error(error))
+        setLoading(false)
+    }, [categories, params])
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -23,17 +78,17 @@ export const CreateQuestionsPage = () => {
             difficulty,
             question,
             incorrect_answers: [],
+            times_correct: timesCorrect,
+            times_incorrect: timesIncorrect,
             type: QuestionType.MULTIPLE_CHOICE,
-            times_correct: 0,
-            times_incorrect: 0,
-            _id: '',
+            _id: questionID
         }
         if (type === 'multiple choice') {
             newQuestion.incorrect_answers = incorrectAnswers;
             newQuestion.type = QuestionType.MULTIPLE_CHOICE
         }
         if (type === 'true or false') {
-            newQuestion.type = QuestionType.TRUE_FALSE
+            newQuestion.type = QuestionType.TRUE_FALSE;
             if (correctAnswers[0] === 'true') {
                 newQuestion.incorrect_answers = ['false'];
             } else {
@@ -44,10 +99,14 @@ export const CreateQuestionsPage = () => {
             newQuestion.incorrect_answers = [];
             newQuestion.type = QuestionType.OPEN_ENDED
         }
+        if (type === 'choose many') {
+            newQuestion.incorrect_answers = [];
+            newQuestion.type = QuestionType.CHOOSE_MANY
+        }
         if (category === 'other') {
             newQuestion.category = newCategory.toLowerCase()
         }
-        await addQuestion(newQuestion)
+        await updateQuestion(newQuestion)
         .then(() => {
             setCategory('');
             setCorrectAnswers([]);
@@ -55,7 +114,9 @@ export const CreateQuestionsPage = () => {
             setIncorrectAnswers(['','','']);
             setNewCategory('');
             setQuestion('');
-            setType('')
+            setType('');
+            setMessage('Question Updated!');
+            setAnswers([]);
         })
         .then(() => {
             setLoading(false)
@@ -94,13 +155,51 @@ export const CreateQuestionsPage = () => {
         }
     }
 
+    const chooseManyAnswersUpdate = (e: Event) => {
+        const target = e.target as HTMLInputElement
+        let index = parseInt(target.id)
+        let currentAnswers = [...answers]
+        currentAnswers[index] = target.value
+        setAnswers(currentAnswers)
+        }
+
+    const addAnswerInput = () => {
+        // setAnswers(prev => [...prev, ''])
+        console.log('Answers: ', answers)
+        console.log('Adding input...')
+        let answersDiv = document.getElementById('choose-many-input');
+        let number = answers.length;
+        if (answersDiv) {
+            answersDiv.innerHTML = '';
+        }
+        for (let i = 0; i <= number; i++) {
+            let input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'choose-many question-input';
+            input.name = `choose-many-answer-${i}`;
+            input.id = `${i}`;
+            if (answers[i]) {
+                input.value = answers[i];
+            }
+            input.placeholder = 'Next Answer';
+            input.addEventListener(
+                'change',
+                (e: Event) => chooseManyAnswersUpdate(e)
+            )
+            // input.addEventListener('blur', () => console.log('Answers: ', answers))
+            answersDiv?.appendChild(input)
+            answersDiv?.appendChild(document.createElement('br'))
+        }
+    }
+
     return(
         <>
-            <CreateQuestionPageStyle />
+            <EditQuestionPageStyle />
             <header>
-                <h1>Question Creation Space</h1>
+                <h1>Edit Question</h1>
             </header>
-            <CreateQuestionStyle>
+            <EditQuestionStyle>
+                {loading && <h3>Loading...</h3>}
                 <form>
                     <label className='field-label'>Difficulty:</label>
                     <br />
@@ -179,6 +278,17 @@ export const CreateQuestionsPage = () => {
                     value="Open Ended"
                     onClick={(e) => toggleType(e.currentTarget.value)}
                     />
+                    <input
+                    style={
+                        type === 'choose many' ?
+                        {boxShadow: '0 0 15px cyan'} :
+                        {}
+                    }
+                    className="button"
+                    type="button"
+                    value="Choose Many"
+                    onClick={(e) => toggleType(e.currentTarget.value)}
+                    />
                     <br />
                     <label className='field-label'>Category (pick one):</label>
                     <br />
@@ -190,6 +300,8 @@ export const CreateQuestionsPage = () => {
                                 {boxShadow: '0 0 15px cyan'} :
                                 {}
                             }
+                            id={cat}
+                            key={cat}
                             className="button"
                             type="button"
                             value={categories.includes(cat) ? cat : newCategory}
@@ -230,7 +342,10 @@ export const CreateQuestionsPage = () => {
                     placeholder='Type your question here...'
                     />
                     <br />
-                    {type !== '' && <label className='field-label'>Answer:</label>}
+                    {type === 'choose many' ?
+                    <label className='field-label'>Answers:</label> :
+                    <label className='field-label'>Answer:</label>
+                    }
                     <br />
                     {
                     type === 'multiple choice' ?
@@ -329,21 +444,36 @@ export const CreateQuestionsPage = () => {
                     className='question-input'
                     id='correct-answer'
                     placeholder='Correct answer...'
-                    onChange={(e) => setCorrectAnswers([e.currentTarget.value])}
+                    value={correctAnswers[0]}
+                    onChange={(e) => setCorrectAnswers([e.currentTarget.value, ...correctAnswers])}
                     /> :
+                    type === 'choose many' ?
+                    <div>
+                        <div id='choose-many-input'>
+                            <p>Answers go here</p>
+                        </div>
+                        <button onClick={(e) => {
+                            e.preventDefault()
+                            addAnswerInput()
+                            }}
+                        >Add Answer
+                        </button>
+                    </div> :
                     null
                     }
+                    
                     <br /><br />
                 </form>
-            </CreateQuestionStyle>
+            </EditQuestionStyle>
             <input
             className="button"
             type="submit"
-            value="Submit Question"
+            value="Save Question"
             id="submit"
             disabled={loading}
             onClick={() => handleSubmit()}
             />
+            {message && <p>{message}</p>}
         </>
     )
 }

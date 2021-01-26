@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Link, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { NavBarStyle } from './NavBar.styles';
 
 export const NavBar = () => {
@@ -11,18 +11,26 @@ export const NavBar = () => {
 
   return (
     <NavBarStyle>
-      <a href='/' onClick={() => handleClick('/')}>
-        Home
-      </a>
-      <a href='/play/trivia' onClick={() => handleClick('/play/trivia')}>
-        Play Trivia!
-      </a>
-      <a href='/create/question' onClick={() => handleClick('/create/question')}>
-        Create New Questions
-      </a>
-      <a href='/view/questions' onClick={() => handleClick('/view/questions')}>
-        View All Questions
-      </a>
+      <div className='navButton'>
+        <a href='/' onClick={() => handleClick('/')}>
+          Home
+        </a>
+      </div>
+      <div className='navButton'>
+        <a href='/play/trivia' onClick={() => handleClick('/play/trivia')}>
+          Play Trivia!
+        </a>
+      </div>
+      <div className='navButton'>
+        <a href='/questions/create' onClick={() => handleClick('/create/question')}>
+          New Questions
+        </a>
+      </div>
+      <div className='navButton'>
+        <a href='/questions/viewAll' onClick={() => handleClick('/view/questions')}>
+          All Questions
+        </a>
+      </div>
     </NavBarStyle>
   )
 }
