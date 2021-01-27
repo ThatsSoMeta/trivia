@@ -29,11 +29,20 @@ export const AppStyle = createGlobalStyle`
         display: flex;
         justify-content: center;
         height: auto;
+        ::-webkit-scrollbar {
+            background-image: linear-gradient(black 13%, transparent 18%);
+            width: 1em;
+        };
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(200, 0, 200, .3);
+            border-radius: .5em;
+            box-shadow: 2px 2px 5px black;
+        }
     }
 
     * {
         box-sizing: border-box;
-        border-radius: 10px;
+        border-radius: 5px;
         outline: none;
     }
 

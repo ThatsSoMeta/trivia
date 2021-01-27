@@ -6,9 +6,12 @@ export const QuestionIndexStyle = styled.tr`
   font-weight: 100;
   font-size: 1rem;
 
+  hr {
+    width: 75%;
+  }
+
   td {
     padding: 10px;
-    font-size: .8rem;
   }
 
   :hover {
@@ -22,6 +25,10 @@ export const QuestionIndexStyle = styled.tr`
       width: 20px;
       padding: 0;
     }
+  }
+
+  #question {
+    font-weight: 400;
   }
 
   #edit, #delete {

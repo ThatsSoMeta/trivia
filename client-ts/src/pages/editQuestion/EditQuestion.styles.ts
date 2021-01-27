@@ -27,21 +27,37 @@ export const EditQuestionStyle = styled.div`
     padding: 5px;
   }
 
+  #category-selector {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 60%;
+    margin: 0 auto;
+    > .button {
+      margin: 5px auto;
+    }
+  }
+
   .field-label {
     font-size: 1.5rem;
     line-height: 3rem;
   }
 
+  #kids {
+    background-image: linear-gradient(45deg, indigo 40%, purple);
+  }
+
   #easy, #true {
-    background-image: linear-gradient(45deg, darkgreen, limegreen);
+    background-image: linear-gradient(45deg, darkgreen 40%, limegreen);
   }
 
   #medium {
-    background-image: linear-gradient(45deg, orange, yellow);
+    background-image: linear-gradient(45deg, orange 40%, yellow);
   }
 
-  #hard, #false {
-    background-image: linear-gradient(45deg, darkred, red);
+  #hard, #false, #delete {
+    background-image: linear-gradient(45deg, darkred 40%, red);
   }
 
   button, .button {
@@ -54,6 +70,10 @@ export const EditQuestionStyle = styled.div`
     :hover {
       box-shadow: 0 0 15px cyan
     }
+  }
+
+  #submit {
+    background-image: linear-gradient(45deg, black, rgb(70, 70, 70));
   }
 
   h2 {

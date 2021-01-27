@@ -2,11 +2,11 @@ import { shuffleArray } from "./utils";
 
 export type Question = {
   category: string;
-  correct_answers: string[];
-  difficulty: Difficulty;
-  incorrect_answers: string[];
-  question: string;
   type: QuestionType;
+  difficulty: Difficulty;
+  question: string;
+  correct_answers: string[];
+  incorrect_answers: string[];
   times_correct: number;
   times_incorrect: number;
   _id: string;
@@ -14,9 +14,10 @@ export type Question = {
 
 interface IQuery {
   difficulty?: Difficulty;
-  type?: string;
+  type?: QuestionType;
   category?: string;
   questionID?: string;
+  uploaded_by?: string;
 }
 
 export enum Difficulty {
@@ -27,21 +28,12 @@ export enum Difficulty {
   UNSET = ""
 }
 
-export enum Category {
-  MOVIES = 'movies',
-  MUSIC = 'music',
-  TELEVISION = 'television',
-  GEOGRAPHY = 'geography',
-  MATH = 'math',
-  LITERATURE = 'literature',
-  OTHER = 'other'
-}
-
 export enum QuestionType {
   MULTIPLE_CHOICE = 'multiple-choice',
   TRUE_FALSE = 'true-false',
   OPEN_ENDED = 'open-ended',
-  CHOOSE_MANY = 'choose-many'
+  CHOOSE_MANY = 'choose-many',
+  UNSET = '',
 }
 
 const BASE_URL = 'http://localhost:5000'
@@ -80,13 +72,12 @@ export const fetchQuizQuestions = async (
 export const fetchAllQuestions = async () => {
   const endpoint = `${BASE_URL}/questions`
   const data = await (await fetch(endpoint)).json();
-  console.log(data.results)
   return data.results
 }
 
 export const fetchSomeQuestions = async (params: IQuery) => {
   let endpoint = `${BASE_URL}/questions`
-  console.log(params)
+  // console.log(params)
   const queryList: string[] = []
   if (params) {
     if (params.difficulty) {
@@ -102,7 +93,7 @@ export const fetchSomeQuestions = async (params: IQuery) => {
       queryList.push(`_id=${params.questionID}`)
     }
   }
-  console.log(queryList.join('&'))
+  // console.log(queryList.join('&'))
   let queryStr = queryList.join('&')
   endpoint += `?${queryStr}`
   const data = await (await fetch(
@@ -114,7 +105,6 @@ export const fetchSomeQuestions = async (params: IQuery) => {
       }
     }
   )).json();
-  console.log(data.results)
   return data.results
 }
 

@@ -3,6 +3,7 @@ import { AppStyle, Wrapper } from "./App.styles";
 import { Navigation, PageHeader } from './components';
 
 const App = () => {
+  document.title = 'What do you know?'
 
   return (
     <>

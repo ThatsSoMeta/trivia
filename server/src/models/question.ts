@@ -1,6 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
 import IQuestion from '../interfaces/question';
 
+
+
+
 const QuestionSchema: Schema = new Schema(
     {
         category: {
@@ -11,16 +14,22 @@ const QuestionSchema: Schema = new Schema(
         difficulty: {
             type: String,
             required: true,
-            enum: ['kids', 'easy', 'medium', 'hard'],
+            default: 'easy',
         },
         type: {
             type: String,
             required: true,
-            enum: ['open-ended', 'multiple-choice', 'true-false', 'choose-many'],
+            default: 'open-ended',
         },
         question: {
             type: String,
             required: true,
+            unique: true,
+        },
+        uploaded_by: {
+            type: String,
+            required: true,
+            default: 'Guest',
         },
         times_correct: {
             type: Number,

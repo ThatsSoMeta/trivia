@@ -12,7 +12,6 @@ export const ViewQuestionsPage = () => {
     fetchAllQuestions()
     .then(data => {
       setQuestions(data)
-      console.log(localStorage.questions)
     })
     .catch((error) => console.error(error))
     setLoading(false)
@@ -22,12 +21,13 @@ export const ViewQuestionsPage = () => {
     <ViewQuestionsStyle>
       <h1>All Questions: </h1>
       {loading && <h3>Loading...</h3>}
+      {questions &&
       <table id='question-table'>
         <thead>
           <tr id='header-row'>
             <th>Category</th>
             <th>Question</th>
-            <th>Answer</th>
+            {/* <th>Answer</th> */}
             <th>Difficulty</th>
             <th>Type</th>
             <th>Edit</th>
@@ -40,11 +40,12 @@ export const ViewQuestionsPage = () => {
               <QuestionIndex
               question={question}
               key={question._id}
+              questions={questions}
               />
             ))
           }
         </tbody>
-      </table>
+      </table>}
       <a href='/questions/create' >
         <button>New Question</button>
       </a>

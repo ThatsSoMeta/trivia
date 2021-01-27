@@ -42,6 +42,10 @@ export const CreateQuestionStyle = styled.div`
     background-image: linear-gradient(45deg, darkred, red);
   }
 
+  #submit, #new-question {
+    background-image: linear-gradient(45deg, black, rgb(70, 70, 70));
+  }
+
   .question-input {
     width: 100%;
     background-color: rgba(200, 200, 200, .2);

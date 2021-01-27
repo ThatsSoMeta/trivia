@@ -21,6 +21,7 @@ const createQuestion = async (req: Request, res: Response, next: NextFunction) =
     difficulty,
     type,
     question,
+    uploaded_by,
     correct_answers,
     incorrect_answers,
   } = req.body;
@@ -31,6 +32,7 @@ const createQuestion = async (req: Request, res: Response, next: NextFunction) =
     difficulty,
     type,
     question,
+    uploaded_by,
     correct_answers,
     incorrect_answers,
   });
@@ -57,6 +59,7 @@ const updateQuestion = async (req: Request, res: Response, next: NextFunction) =
     difficulty,
     type,
     question,
+    uploaded_by,
     correct_answers,
     incorrect_answers,
   } = req.body;
@@ -66,6 +69,7 @@ const updateQuestion = async (req: Request, res: Response, next: NextFunction) =
     difficulty,
     type,
     question,
+    uploaded_by,
     correct_answers,
     incorrect_answers,
   };

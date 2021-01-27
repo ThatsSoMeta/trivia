@@ -23,6 +23,7 @@ export const ViewQuestionsStyle = styled.div`
 
   th {
     font-size: 1rem;
+    font-weight: 100;
     background-color: black;
     border-radius: 10px;
     padding: 10px;

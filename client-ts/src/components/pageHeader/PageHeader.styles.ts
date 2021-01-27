@@ -13,7 +13,7 @@ export const PageHeaderStyle = styled.div`
   color: white;
   width: 100%;
   padding: 0 10px 25px 10px;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0;
   
   h1 {
     color: white;
@@ -23,7 +23,7 @@ export const PageHeaderStyle = styled.div`
   }
 
   img {
-    background-image: radial-gradient(rgb(200, 200, 200), transparent 85%);
+    background-image: radial-gradient(white 15%, transparent 85%);
     width: 60px;
     cursor: pointer;
     position: absolute;
