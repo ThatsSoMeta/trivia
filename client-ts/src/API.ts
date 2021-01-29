@@ -47,6 +47,7 @@ export class Question implements IQuestion {
   times_correct: number
   times_incorrect: number
   answers: string[]
+  total_guesses: number
   _id: string = ''
 
   constructor(
@@ -70,16 +71,22 @@ export class Question implements IQuestion {
     this.uploaded_by = uploaded_by;
     this.times_correct = times_correct;
     this.times_incorrect = times_incorrect;
-    this.answers = shuffleArray(this.correct_answers.concat(this.incorrect_answers))
+    this.answers = shuffleArray(this.correct_answers.concat(this.incorrect_answers));
+    this._id = _id;
+    this.total_guesses = this.times_correct + this.times_incorrect
   };
   __str__(): string {
     return this.question
   }
   correctGuess(): void {
     this.times_correct += 1
+    console.log("ID:", this._id)
+    updateQuestion(this._id, {times_correct: this.times_correct})
   }
   incorrectGuess(): void {
     this.times_incorrect += 1
+    console.log("ID:", this._id)
+    updateQuestion(this._id, {times_incorrect: this.times_incorrect})
   }
   getCorrectRate(): number {
     console.log(`${(this.times_correct / (this.times_correct + this.times_incorrect)) * 100}% correct`)
@@ -100,7 +107,7 @@ export class Question implements IQuestion {
     }
   }
   getAllAnswers() : string[] {
-    if (this.type == QType.MULTIPLE_CHOICE) {
+    if (this.type === QType.MULTIPLE_CHOICE) {
       return shuffleArray(this.correct_answers.concat(this.incorrect_answers))
     }
     else if (this.type === QType.TRUE_FALSE) {
@@ -146,12 +153,12 @@ export const fetchQuizQuestions = async ( params: IQuery) => {
   let {
     difficulty,
     type,
-    category,
-    questionID,
-    uploaded_by,
+    // category,
+    // questionID,
+    // uploaded_by,
     amount
   } = params
-  let endpoint = `${BASE_URL}/questions/get`;
+  let endpoint = `${BASE_URL}/questions/get/random/`;
   console.log("Difficulty: ", difficulty)
   let queryList = []
   if (amount) {
@@ -205,10 +212,11 @@ export const fetchFromOpenTrivia = async () => {
   return data.results
 }
 
-export const fetchAllQuestions = async () => {
-  const endpoint = `${BASE_URL}/questions/getAll`;
+export const fetchAllQuestions = async (offset: number = 0) => {
+  const endpoint = `${BASE_URL}/questions/get/stream/${offset}`;
+
   const data = await (await fetch(endpoint)).json();
-  return data.results
+  return data
 }
 
 export const fetchSingleQuestion = async (_id: string) => {
@@ -218,7 +226,7 @@ export const fetchSingleQuestion = async (_id: string) => {
 }
 
 export const fetchSomeQuestions = async (params: IQuery) => {
-  let endpoint = `${BASE_URL}/questions`
+  let endpoint = `${BASE_URL}/questions/get`
   // console.log(params)
   const queryList: string[] = []
   if (params.difficulty) {
@@ -278,7 +286,7 @@ export const deleteQuestion = async (_id: string) => {
   .catch((error) => console.error(error))
 }
 
-export const updateQuestion = async (_id: Question["_id"], updateInfo: object = {}) => {
+export const updateQuestion = async (_id: string, updateInfo: object = {}) => {
   console.log("Updates to question: ", JSON.stringify(updateInfo))
   const endpoint = `${BASE_URL}/questions/edit/${_id}`;
   await fetch(

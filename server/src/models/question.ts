@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import IQuestion from '../interfaces/question';
+import random from 'mongoose-simple-random';
 
 
 
@@ -63,5 +64,7 @@ const QuestionSchema: Schema = new Schema(
 QuestionSchema.post<IQuestion>('save', function () {
     console.log(`Question saved: ${this.question}`)
 })
+
+QuestionSchema.plugin(random);
 
 export default mongoose.model<IQuestion>('Question', QuestionSchema);

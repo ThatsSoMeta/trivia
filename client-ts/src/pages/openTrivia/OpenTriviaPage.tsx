@@ -150,6 +150,7 @@ export const OpenTriviaPage = () => {
                     retrievedQuestions.map(question => (
                     <QuestionIndex
                     question={question}
+                    offset={0}
                     key={v4()}
                     />
                     ))

@@ -7,6 +7,7 @@ import DeleteIcon from '../../images/delete-red.png';
 
 export interface IQuestionProps {
   question: Question,
+  offset: number
 }
 
 export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) => {
@@ -17,6 +18,7 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
   const [questionType, setQuestionType] = useState<QType>(QType.UNSET);
   const [questionText, setQuestionText] = useState('')
   const [submittingQuestion, setSubmittingQuestion] = useState(false);
+  const [offset, setOffset] = useState(props.offset)
 
   let {
     category,
@@ -81,7 +83,7 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
 
     // }
     setLoading(false)
-  }, [times_correct, times_incorrect, type, loading])
+  }, [times_correct, times_incorrect, type, loading, offset])
 
   const toggleDelete = () => {
     setLoading(true);

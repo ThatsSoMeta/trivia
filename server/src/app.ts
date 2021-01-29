@@ -9,6 +9,7 @@ mongoose.connect("mongodb://localhost/trivia", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
+  useCreateIndex: true,
 });
 
 export const db = mongoose.connection;

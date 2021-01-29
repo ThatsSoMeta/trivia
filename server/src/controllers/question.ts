@@ -85,29 +85,9 @@ const createQuestion = async (req: Request, res: Response, next: NextFunction) =
 
 
 const updateQuestion = async (req: Request, res: Response, next: NextFunction) => {
-  let {
-    category,
-    difficulty,
-    type,
-    question,
-    uploaded_by,
-    correct_answers,
-    incorrect_answers,
-  } = req.body;
-
-  const updatedQuestion = {
-    category,
-    difficulty,
-    type,
-    question,
-    uploaded_by,
-    correct_answers,
-    incorrect_answers,
-  };
-
   await Question.findByIdAndUpdate(
     req.params.questionID,
-    updatedQuestion,
+    req.body,
     {
       new: true,
     },
@@ -129,13 +109,35 @@ const updateQuestion = async (req: Request, res: Response, next: NextFunction) =
 }
 
 const getQuestionCount = async (req: Request, res: Response, next: NextFunction) => {
-  Question.countDocuments((err, data) => {
+  Question.countDocuments((err, qty) => {
     if (err) {
-      console.error(err)
+      res.status(500).json({
+        message: err.message,
+        error: err
+      })
     } else {
-      res.status(201).json(data)
+      res.status(201).json(qty)
     }
   })
+}
+
+const getSomeQuestions = async (req: Request, res: Response, next: NextFunction) => {
+  let offset = parseInt(req.params.offset)
+  console.log("Getting some questions")
+  await Question.find((err, docs) => {
+    if (err) {
+      console.error(err)
+      return res.status(500).json({
+        message: err.message,
+        error: err
+      })
+    } else {
+      console.log(docs)
+      return res.status(201).json(docs)
+    }
+  })
+  .skip(offset)
+  .limit(10)
 }
 
 const getQuestions = async (req: Request, res: Response, next: NextFunction) => {
@@ -150,9 +152,23 @@ const getQuestions = async (req: Request, res: Response, next: NextFunction) => 
       return res.status(201).send(docs)
     }
   })
-  .skip(2000)
   .limit(parseInt(req.params.amount))
 };
+
+const getRandomQuestions = async (req: Request, res: Response, next: NextFunction) => {
+  await Question.findRandom(req.query, {}, { limit: req.params.amount }, (err, data) => {
+    if (err) {
+      console.error(err)
+      return res.status(500).json({
+        message: err.message,
+        error: err
+      })
+    } else {
+      console.log(data)
+      return res.status(201).json(data)
+    }
+  })
+}
 
 const testQueryLimit = (req: Request, res: Response, next: NextFunction) => {
   Question.find().limit(10).exec((err: Error, data: Response) => {
@@ -173,5 +189,7 @@ export default {
   deleteAllQuestions,
   getQuestion,
   testQueryLimit,
-  getQuestionCount
+  getQuestionCount,
+  getRandomQuestions,
+  getSomeQuestions
 };

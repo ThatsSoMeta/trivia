@@ -265,6 +265,7 @@ export const QuizGame = () => {
         </button>
       </>
       )}
+      <span>Most questions provided by https://opentdb.com/</span>
     </QuizGameStyle>
   );
 }

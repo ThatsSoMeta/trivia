@@ -3,7 +3,6 @@ import {
   Question,
   QType,
   updateQuestion,
-  fetchSomeQuestions,
   fetchSingleQuestion,
   Difficulty,
   deleteQuestion,
