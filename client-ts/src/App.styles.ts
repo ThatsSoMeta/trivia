@@ -5,15 +5,18 @@ export const AppStyle = createGlobalStyle`
     :root {
         background-color: rgb(50, 50, 50);
         padding: 0;
-        font-family: 'Annie Use Your Telescope', cursive;
+        font-family: 'Josefin Sans', sans-serif;
     }
 
     #root {
         width: 100%;
     }
 
-    h2, h2 {
+    h1, h2 {
         color: white;
+        font-family: 'Londrina Solid', cursive;
+        letter-spacing: .4rem;
+        font-weight: 100;
     }
 
     html {
@@ -26,20 +29,36 @@ export const AppStyle = createGlobalStyle`
         display: flex;
         justify-content: center;
         height: auto;
+        ::-webkit-scrollbar {
+            background-image: linear-gradient(black 13%, transparent 18%);
+            width: 1em;
+        };
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(200, 0, 200, .3);
+            border-radius: .5em;
+            box-shadow: 2px 2px 5px black;
+        }
     }
 
     * {
         box-sizing: border-box;
-        border-radius: 10px;
+        border-radius: 5px;
         outline: none;
     }
 
     button, .button {
+        background-image: linear-gradient(45deg, black, rgb(70, 70, 70));
+        font-family: 'Londrina Solid', cursive;
+        letter-spacing: .1rem;
+        color: white;
         text-transform: capitalize;
-        margin: 5px;
-        padding: 10px;
-        border-radius: 10px;
-        font-weight: bold;
+        text-shadow: 2px 2px 5px black;
+        margin: 10px;
+        padding: 8px;
+        cursor: pointer;
+        :hover {
+          box-shadow: 0 0 15px cyan;
+        };
     }
 `;
 
@@ -56,20 +75,5 @@ export const Wrapper = styled.div`
         color: white;
         font-size: 2rem;
         margin: 0;
-    }
-
-    h1 {
-        background-image: linear-gradient(45deg, green, yellow, red);
-        background-size: 100%;
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        -moz-background-clip: text;
-        -moz-text-fill-color: transparent;
-        filter: drop-shadow(2px 2px gray);
-        font-size: 70px;
-        font-weight: 400;
-        text-align: center;
-        margin: 20px;
     }
 `

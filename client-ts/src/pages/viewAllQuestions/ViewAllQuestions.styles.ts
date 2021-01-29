@@ -7,22 +7,37 @@ export const ViewQuestionsStyle = styled.div`
 
   #question-table {
     color: white;
-    width: 80%;
+    min-width: 80%;
+    margin: 10px;
+    tr:nth-child(even) {
+      background-color: rgb(35, 35, 35);
+    }
+    tr:nth-child(odd) {
+      background-color: rgb(30, 30, 30);
+    }
   }
 
   tr {
     cursor: pointer;
   }
 
-  #header-row {
-    font-size: 1.5rem;
+  th {
+    font-size: 1rem;
+    font-weight: 100;
     background-color: black;
     border-radius: 10px;
+    padding: 10px;
   }
 
   td {
     padding: 10px;
     text-align: center;
-    font-size: 2rem;
   }
+
+  #difficulty {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
 `

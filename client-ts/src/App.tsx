@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { AppStyle, Wrapper } from "./App.styles";
 import { Navigation, PageHeader } from './components';
 
 const App = () => {
-  const [option, setOption] = useState("");
+  document.title = 'What do you know?'
 
   return (
     <>

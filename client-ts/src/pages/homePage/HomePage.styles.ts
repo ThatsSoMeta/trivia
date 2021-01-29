@@ -6,8 +6,16 @@ export const HomePageStyle = styled.div`
   text-align: center;
   justify-content: center;
 
-  button, .button {
-    background-color: white;
+  * {
     text-decoration: none;
+  };
+
+  .button-link {
+    background-image: linear-gradient(45deg, black, rgb(50, 50, 50));
+    box-shadow: 5px 5px 10px black;
+    :hover {
+      box-shadow: 5px 5px 10px cyan;
+    }
   }
+
 `

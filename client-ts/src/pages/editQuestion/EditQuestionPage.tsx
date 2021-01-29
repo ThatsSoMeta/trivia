@@ -1,9 +1,20 @@
-import React, { ChangeEvent, useState } from "react";
-import { Question, QType, addQuestion, Difficulty, testQuestion } from "../../API";
-import { CreateQuestionStyle } from "./CreateQuestion.styles";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import {
+  Question,
+  QType,
+  updateQuestion,
+  fetchSingleQuestion,
+  Difficulty,
+  deleteQuestion,
+} from "../../API";
+import {
+  EditQuestionPageStyle,
+  EditQuestionStyle,
+} from "./EditQuestion.styles";
+import { useParams } from "react-router-dom";
 
-export const CreateQuestionsPage = () => {
-  const [categories] = useState([
+export const EditQuestionsPage = () => {
+  const [categories] = useState<string[]>([
     "movies",
     "music",
     "television",
@@ -24,35 +35,97 @@ export const CreateQuestionsPage = () => {
     "",
     "",
   ]);
-  const [message, setMessage] = useState<string>("");
-  const [updateComplete, setUpdateComplete] = useState(false);
+  const [questionID, setQuestionID] = useState("");
+  const [message, setMessage] = useState("");
+  const [updateComplete, setUpdateComplete] = useState<boolean>(false);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchSingleQuestion(questionID)
+      .then((data) => {
+        data = data[0];
+        setQuestion(data.question);
+        setDifficulty(data.difficulty);
+        if (data.correct_answers !== []) {
+          setCorrectAnswers(data.correct_answers);
+        } else {
+          setCorrectAnswers([""]);
+        }
+        setIncorrectAnswers(data.incorrect_answers);
+        setQuestionID(data._id);
+        if (categories.includes(data.category)) {
+          setCategory(data.category);
+        } else {
+          setCategory("other");
+          setNewCategory(data.category);
+        }
+        setType(data.type)
+      })
+      .catch((error) => console.error(error));
+    setLoading(false);
+  }, []);
+
+  const handleDelete = async () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this question? This action can not be undone."
+      )
+    ) {
+      deleteQuestion(questionID);
+    }
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
-    const newQuestion= new Question(
+    const newQuestion = new Question(
       category,
       type,
       difficulty,
       question,
-      correctAnswers,
+      correctAnswers.filter((answer) => answer !== ''),
       incorrectAnswers,
-      'Drewski'
-    );
-    await addQuestion(newQuestion)
-      .then(() => {
-        setCategory("");
-        setCorrectAnswers([""]);
-        setDifficulty(Difficulty.UNSET);
-        setIncorrectAnswers(["", "", ""]);
-        setNewCategory("");
-        setQuestion("");
-        setType(QType.UNSET);
-        setMessage("Successfully created question!");
-        setUpdateComplete(true);
-      })
-      .then(() => {
-        setLoading(false);
-      });
+      "Drewski"
+      )
+      if (category === "other") {
+        newQuestion.category = newCategory;
+      }
+      // category,
+      // correct_answers: correctAnswers.filter((answer) => answer !== ""),
+      // difficulty,
+      // question,
+      // incorrect_answers: [],
+      // times_correct: timesCorrect,
+      // times_incorrect: timesIncorrect,
+      // type: QuestionType.MULTIPLE_CHOICE,
+      // uploaded_by: 'Guest',
+      // _id: questionID,
+    // if (type === "multiple choice") {
+    //   newQuestion.incorrect_answers = incorrectAnswers;
+    //   newQuestion.type = QuestionType.MULTIPLE_CHOICE;
+    // }
+    // if (type === "true or false") {
+    //   newQuestion.type = QuestionType.TRUE_FALSE;
+    //   if (correctAnswers[0] === "True") {
+    //     newQuestion.incorrect_answers = ["False"];
+    //   } else {
+    //     newQuestion.incorrect_answers = ["True"];
+    //   }
+    // }
+    // if (type === "open ended") {
+    //   newQuestion.incorrect_answers = [];
+    //   newQuestion.type = QuestionType.OPEN_ENDED;
+    // }
+    // if (type === "choose many") {
+    //   newQuestion.incorrect_answers = [];
+    //   newQuestion.type = QuestionType.CHOOSE_MANY;
+    // } else {
+    //   newQuestion.correct_answers = correctAnswers.filter((_, i) => i < 1);
+    // }
+    await updateQuestion(questionID, newQuestion).then(() => {
+      setMessage("Question Updated!");
+      setUpdateComplete(true);
+      setLoading(false);
+    });
   };
 
   const toggleDifficulty = (level: Difficulty) => {
@@ -99,42 +172,17 @@ export const CreateQuestionsPage = () => {
     setCorrectAnswers((prev) => [...prev, ""]);
   };
 
-  const handleTestClick = (question: Question) => {
-    question.correctGuess()
-    question.correctGuess()
-    question.correctGuess()
-    question.correctGuess()
-    question.incorrectGuess()
-    console.log(question.getCorrectRate())
-    console.log(question)
-    console.log(question.getAllAnswers())
-    question.ask()
-  }
-
   return (
     <>
+      <EditQuestionPageStyle />
       <header>
-        <h2>Create New Question</h2>
+        <h1>Edit Question</h1>
       </header>
-      <button onClick={() => handleTestClick(testQuestion)}>Test Question Class</button>
-      <CreateQuestionStyle>
+      <EditQuestionStyle>
         {loading ? (
           <h3>Loading...</h3>
         ) : updateComplete && message ? (
-          <div id='update-complete'>
-            <h3>{message}</h3>
-            <input 
-              className='button'
-              type='button'
-              value='New Question'
-              id='new-question'
-              onClick={(e) => {
-                e.preventDefault()
-                setUpdateComplete(false)
-                window.scrollTo({top: 0})
-              }}
-            />
-          </div>
+          <h3>{message}</h3>
         ) : (
           <form>
             <label className="field-label">Difficulty:</label>
@@ -225,19 +273,37 @@ export const CreateQuestionsPage = () => {
             <br />
             <label className="field-label">Category:</label>
             <br />
-            {categories.map((cat) => (
-              <input
-                style={cat === category ? { boxShadow: "0 0 15px cyan" } : {}}
-                className="button"
-                type="button"
-                key={cat}
-                value={categories.includes(cat) ? cat : newCategory}
-                onClick={(e) => toggleCategory(e.currentTarget.value)}
-              />
-            ))}
+            <div id="category-selector">
+              {categories ? (
+                categories.map((cat, i, list) => {
+                  console.log(list[i]);
+                  console.log(cat, i, list);
+                  if (cat !== "") {
+                    return (
+                      <input
+                        style={
+                          cat === category ? { boxShadow: "0 0 15px cyan" } : {}
+                        }
+                        id={cat}
+                        key={String(Math.random())}
+                        className="button"
+                        type="button"
+                        value={
+                          categories.includes(cat)
+                            ? cat.toLowerCase()
+                            : newCategory.toLowerCase()
+                        }
+                        onClick={(e) => toggleCategory(e.currentTarget.value)}
+                      />
+                    );
+                  }
+                })
+              ) : (
+                <span>Loading Categories...</span>
+              )}
+            </div>
             <br />
-            {category !== "" &&
-            (!categories.includes(category) || category === "other") ? (
+            {category === "other" ? (
               <>
                 <input
                   type="text"
@@ -263,10 +329,10 @@ export const CreateQuestionsPage = () => {
               placeholder="Type your question here..."
             />
             <br />
-            {type === QType.OPEN_ENDED ? (
-              <label className="field-label">Answer:</label>
-            ) : (
+            {type === QType.CHOOSE_MANY ? (
               <label className="field-label">Answers:</label>
+            ) : (
+              <label className="field-label">Answer:</label>
             )}
             <br />
             {type === QType.MULTIPLE_CHOICE ? (
@@ -274,7 +340,7 @@ export const CreateQuestionsPage = () => {
                 <input
                   type="text"
                   className="question-input correct-answer"
-                  id="0"
+                  id="correct-answer"
                   placeholder="Correct answer..."
                   value={correctAnswers[0]}
                   onChange={(e) => setCorrectAnswers([e.currentTarget.value])}
@@ -324,8 +390,6 @@ export const CreateQuestionsPage = () => {
                     ])
                   }
                 />
-                <br />
-                <input type="button" className="button" value="+" />
               </div>
             ) : type === QType.TRUE_FALSE ? (
               <>
@@ -354,13 +418,17 @@ export const CreateQuestionsPage = () => {
                   onClick={() => toggleTF(["False"])}
                 />
               </>
-            ) : type === QType.OPEN_ENDED || type === QType.UNSET ? (
+            ) : type === QType.OPEN_ENDED ? (
               <input
                 type="text"
-                className="question-input correct-answer"
-                id="correct-answer"
+                className="question-input"
+                id="0"
                 placeholder="Correct answer..."
-                onChange={(e) => setCorrectAnswers([e.currentTarget.value])}
+                defaultValue=""
+                value={correctAnswers[0]}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  updateAnswers(e)
+                }
               />
             ) : type === QType.CHOOSE_MANY ? (
               <div>
@@ -371,10 +439,11 @@ export const CreateQuestionsPage = () => {
                       <input
                         type="text"
                         name={name}
-                        className="question-input correct-answer choose-many"
+                        className="question-input choose-many"
                         id={String(index)}
                         key={index}
-                        defaultValue={correctAnswers[index]}
+                        defaultValue=""
+                        value={correctAnswers[index]}
                         placeholder="Correct answer..."
                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
                           updateAnswers(e)
@@ -384,29 +453,51 @@ export const CreateQuestionsPage = () => {
                   })}
                 </div>
                 <button
-                  about="Add Answer"
                   onClick={(e) => {
                     e.preventDefault();
                     addAnswerInput();
                   }}
                 >
-                  +
+                  Add Answer
                 </button>
               </div>
             ) : null}
+
             <br />
-            <hr />
+            <br />
+          </form>
+        )}
+        <hr style={{ width: "100%" }} />
+        {!updateComplete ? (
+          <div id="submit-box">
+            <input
+              type="button"
+              className="button"
+              value="Delete Question"
+              id="delete"
+              disabled={loading || updateComplete}
+              onClick={() => handleDelete()}
+            />
             <input
               className="button"
               type="submit"
-              value="Submit Question"
+              value="Save Question"
               id="submit"
               disabled={loading || updateComplete}
               onClick={() => handleSubmit()}
             />
-          </form>
+          </div>
+        ) : (
+          <>
+            <a href="/questions/create">
+              <button>New Question</button>
+            </a>
+            <a href="/questions/viewAll">
+              <button>All Questions</button>
+            </a>
+          </>
         )}
-      </CreateQuestionStyle>
+      </EditQuestionStyle>
     </>
   );
 };

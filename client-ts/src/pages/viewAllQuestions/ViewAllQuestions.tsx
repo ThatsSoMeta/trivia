@@ -1,46 +1,73 @@
 import React, { useEffect, useState } from 'react';
-import { fetchAllQuestions, Question } from '../../API';
-import { QuestionCardSmall, QuestionIndex } from '../../components';
+import { deleteAllQuestions, fetchAllQuestions, Question, testQueryLimit } from '../../API';
+import { QuestionIndex } from '../../components';
 import { ViewQuestionsStyle } from './ViewAllQuestions.styles';
 
 export const ViewQuestionsPage = () => {
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [offset, setOffset] = useState(0)
 
   useEffect(() => {
     setLoading(true);
-    fetchAllQuestions()
+    console.log("Fetching questions...")
+    fetchAllQuestions(offset)
     .then(data => {
+      console.log(data)
       setQuestions(data)
-      console.log(localStorage.questions)
+      setLoading(false)
     })
     .catch((error) => console.error(error))
-    setLoading(false)
-  }, [])
+  }, [offset])
+
+  const increaseOffset = () => {
+    setOffset(prev => prev + 10)
+  }
+
+  const decreaseOffset = () => {
+    if (offset !== 0) {
+      setOffset(prev => prev - 10)
+    }
+  }
 
   return (
     <ViewQuestionsStyle>
       <h1>All Questions: </h1>
-      <table id='question-table'>
-        <tr id='header-row'>
-          <td>Category</td>
-          <td>Question</td>
-          <td>Answer</td>
-          <td>Difficulty</td>
-          <td>Type</td>
-          <td>Edit</td>
-          <td>Delete</td>
-        </tr>
-        {questions &&
-          questions.map(question => (
-            <QuestionIndex
-            question={question}
-            setQuestions={setQuestions}
-            questions={questions}
-            />
-          ))
-        }
-      </table>
+      {loading && <h3>Loading...</h3>}
+      {!loading && questions &&
+      <>
+        <div>
+          <button onClick={decreaseOffset}>Previous Page</button>
+          <button onClick={increaseOffset}>Next Page</button>
+        </div>
+        <table id='question-table'>
+          <thead>
+            <tr id='header-row'>
+              <th>Category</th>
+              <th>Question</th>
+              {/* <th>Answer</th> */}
+              <th>Difficulty</th>
+              <th>Type</th>
+              <th>Edit</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {questions &&
+              questions.map(question => (
+                <QuestionIndex
+                question={question}
+                offset={offset}
+                key={question._id}
+                />
+              ))
+            }
+          </tbody>
+        </table>
+      </>}
+      <a href='/questions/create' >
+        <button>New Question</button>
+      </a>
     </ViewQuestionsStyle>
   )
 }

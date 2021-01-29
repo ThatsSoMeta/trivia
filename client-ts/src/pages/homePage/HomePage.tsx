@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useHistory, Link } from 'react-router-dom';
-import {HomePageStyle} from './HomePage.styles'
+import { HomePageStyle } from './HomePage.styles'
 
 export const HomePage = () => {
   let history = useHistory()
@@ -13,23 +13,23 @@ export const HomePage = () => {
     <HomePageStyle>
       <h1>The Game</h1>
       <Link
-      className='button'
-      to='/create/question'
-      onClick={() => handleClick('/create/question')}
+      className='button-link button'
+      to='/questions/create'
+      onClick={() => handleClick('/questions/create')}
       >
         Create Questions
       </Link>
       <Link
-      className='button'
+      className='button-link button'
       to='/play/trivia'
       onClick={() => handleClick('/play/trivia')}
       >
         Play Game
       </Link>
       <Link
-      className='button'
-      to='/view/questions'
-      onClick={() => handleClick('/view/questions')}
+      className='button-link button'
+      to='/questions/viewAll'
+      onClick={() => handleClick('/questions/viewAll')}
       >
         View Questions
       </Link>

@@ -1,6 +1,37 @@
 import { NextFunction, Request, response, Response } from "express";
-import mongoose from "mongoose";
+import mongoose, { models } from "mongoose";
+import IQuestion from "../interfaces/question";
+import IQuery from "../interfaces/question";
 import Question from "../models/question";
+
+const deleteAllQuestions = (req: Request, res: Response, next: NextFunction) => {
+  Question.deleteMany({type: 'open-ended'})
+  .then(() => {
+    res.status(201).json({
+      message: 'Successfully deleted'
+    })
+  })
+  .catch((error: Error) => console.error(error))
+}
+
+const getQuestion = (req: Request, res: Response, next: NextFunction) => {
+  Question.find(
+    {_id: req.params.questionID},
+    (err, data) => {
+      if (err) {
+        return res.status(500).json({
+          message: err.message,
+          error: err
+        })
+      } else {
+        console.log(data)
+        return res.status(201).json({
+          result: data
+        })
+      }
+    }
+  )
+}
 
 const deleteQuestion = (req: Request, res: Response, next: NextFunction) => {
     console.log(req.params.questionID)
@@ -15,13 +46,14 @@ const deleteQuestion = (req: Request, res: Response, next: NextFunction) => {
     .catch((error: Error) => console.error(error))
 };
 
-const createQuestion = (req: Request, res: Response, next: NextFunction) => {
+const createQuestion = async (req: Request, res: Response, next: NextFunction) => {
   let {
     category,
     difficulty,
     type,
     question,
-    correct_answer,
+    uploaded_by,
+    correct_answers,
     incorrect_answers,
   } = req.body;
 
@@ -31,11 +63,12 @@ const createQuestion = (req: Request, res: Response, next: NextFunction) => {
     difficulty,
     type,
     question,
-    correct_answer,
+    uploaded_by,
+    correct_answers,
     incorrect_answers,
   });
 
-  return newQuestion
+  await newQuestion
     .save()
     .then((result) => {
       return res.status(201).json({
@@ -50,44 +83,113 @@ const createQuestion = (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
-const getQuestions = (req: Request, res: Response, next: NextFunction) => {
-  interface Query {
-    question?: string;
-    difficulty?: string;
-    type?: string;
-    category?: string;
-  }
-  let query: Query = {};
-  if (req.query) {
-    let q = req.query;
-    if (q.question) {
-      query.question = (q as any).question;
+
+const updateQuestion = async (req: Request, res: Response, next: NextFunction) => {
+  await Question.findByIdAndUpdate(
+    req.params.questionID,
+    req.body,
+    {
+      new: true,
+    },
+    (error, data) => {
+      if(error) {
+        console.error(error)
+        return res.status(500).json({
+          message: error.message,
+          error
+        })
+      } else {
+        console.log('Successfully updated question:', data)
+        return res.status(201).json({
+          updatedQuestion: data
+        });
+      }
     }
-    if (q.difficulty) {
-      query.difficulty = (q as any).difficulty;
+  )
+}
+
+const getQuestionCount = async (req: Request, res: Response, next: NextFunction) => {
+  Question.countDocuments((err, qty) => {
+    if (err) {
+      res.status(500).json({
+        message: err.message,
+        error: err
+      })
+    } else {
+      res.status(201).json(qty)
     }
-    if (q.type) {
-      query.type = (q as any).type;
-    }
-    if (q.category) {
-      query.category = (q as any).category;
-    }
-  }
-  console.log(query);
-  Question.find(query)
-    .exec()
-    .then((results: string | any[]) => {
-      return res.status(200).json({
-        results: results,
-        count: results.length,
-      });
-    })
-    .catch((error: Error) => {
+  })
+}
+
+const getSomeQuestions = async (req: Request, res: Response, next: NextFunction) => {
+  let offset = parseInt(req.params.offset)
+  console.log("Getting some questions")
+  await Question.find((err, docs) => {
+    if (err) {
+      console.error(err)
       return res.status(500).json({
-        message: error.message,
-        error,
-      });
-    });
+        message: err.message,
+        error: err
+      })
+    } else {
+      console.log(docs)
+      return res.status(201).json(docs)
+    }
+  })
+  .skip(offset)
+  .limit(10)
+}
+
+const getQuestions = async (req: Request, res: Response, next: NextFunction) => {
+  await Question.find(req.query, (err, docs) => {
+    if (err) {
+      return res.status(500).json({
+        message: err.message,
+        error: err
+      })
+    } else {
+      console.log(docs)
+      return res.status(201).send(docs)
+    }
+  })
+  .limit(parseInt(req.params.amount))
 };
 
-export default { getQuestions, createQuestion, deleteQuestion };
+const getRandomQuestions = async (req: Request, res: Response, next: NextFunction) => {
+  await Question.findRandom(req.query, {}, { limit: req.params.amount }, (err, data) => {
+    if (err) {
+      console.error(err)
+      return res.status(500).json({
+        message: err.message,
+        error: err
+      })
+    } else {
+      console.log(data)
+      return res.status(201).json(data)
+    }
+  })
+}
+
+const testQueryLimit = (req: Request, res: Response, next: NextFunction) => {
+  Question.find().limit(10).exec((err: Error, data: Response) => {
+    if (err) {
+      console.error(err)
+    } else {
+      console.log(data)
+    }
+  })
+}
+
+
+export default {
+  getQuestions,
+  createQuestion,
+  deleteQuestion,
+  updateQuestion,
+  deleteAllQuestions,
+  getQuestion,
+  testQueryLimit,
+  getQuestionCount,
+  getRandomQuestions,
+  getSomeQuestions
+};

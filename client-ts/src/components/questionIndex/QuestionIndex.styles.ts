@@ -3,21 +3,39 @@ import styled from 'styled-components';
 export const QuestionIndexStyle = styled.tr`
   border-radius: 10px;
   outline: none;
+  font-weight: 100;
+  font-size: 1rem;
+
+  hr {
+    width: 75%;
+  }
+
+  td {
+    padding: 10px;
+  }
 
   :hover {
     box-shadow: 0 0 15px white;
   }
 
   img {
-    padding: 5px;
-    width: 35px;
+    width: 15px;
+    border-radius: 0;
     :hover {
-      width: 45px;
+      width: 20px;
       padding: 0;
     }
   }
 
+  #question {
+    font-weight: 400;
+  }
+
   #edit, #delete {
-    width: 70px;
+    width: 50px;
+  }
+
+  #correct-rate {
+    font-size: .75rem;
   }
 `

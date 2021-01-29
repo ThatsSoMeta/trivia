@@ -1,15 +1,40 @@
 import styled from 'styled-components';
 
 export const PageHeaderStyle = styled.div`
+  display: flex;
+  position: sticky;
+  z-index: 5;
+  top: 0;
+  flex-direction: column;
   text-align: center;
-  min-height: 100px;
-  background-image: linear-gradient(black, transparent);
+  align-items: center;
+  background-image: linear-gradient(black 80%, transparent);
   margin: 0;
-  color: blue;
+  color: white;
   width: 100%;
-  font-size: 2rem;
-  padding: 10px;
+  padding: 0 10px 25px 10px;
+  border-radius: 0;
+  
   h1 {
-    margin: 15px;
+    color: white;
+    text-shadow: green;
+    padding: 5px;
+    max-width: 75%;
+  }
+
+  img {
+    background-image: radial-gradient(white 15%, transparent 85%);
+    width: 60px;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    border-radius: 50%;
+    -webkit-transition: -webkit-transform 1s ease-in-out;
+            transition:         transform 1s ease-in-out;
+    :hover {
+      -webkit-transform: rotate(360deg);
+              transform: rotate(360deg);
+    }
   }
 `

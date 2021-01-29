@@ -3,15 +3,18 @@ import mongoose from "mongoose";
 import bodyParser from 'body-parser';
 import questionRoutes from './routes/questions';
 import cors from 'cors';
+import { traceDeprecation } from "process";
 
 mongoose.connect("mongodb://localhost/trivia", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true,
 });
 
-const db = mongoose.connection;
+export const db = mongoose.connection;
 db.on("error", (error) => console.log(error));
-db.once("open", () => console.log("Connected to database: Trivia"));
+db.once("open", () => console.log("Connected to database: Trivia:"));
 
 const app: Application = express();
 app.listen(5000, () => console.log(

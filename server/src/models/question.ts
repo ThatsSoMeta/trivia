@@ -1,43 +1,70 @@
 import mongoose, { Schema } from 'mongoose';
-import Question from '../interfaces/question';
+import IQuestion from '../interfaces/question';
+import random from 'mongoose-simple-random';
+
+
+
 
 const QuestionSchema: Schema = new Schema(
     {
         category: {
             type: String,
             required: true,
-            default: 'misc'
+            default: 'other'
         },
         difficulty: {
             type: String,
             required: true,
-            enum: ['easy', 'medium', 'hard'],
+            default: 'easy',
         },
         type: {
             type: String,
             required: true,
-            enum: ['open-ended', 'multiple-choice', 'true-false'],
+            default: 'open-ended',
         },
         question: {
             type: String,
             required: true,
+            unique: true,
         },
-        correct_answer: {
+        uploaded_by: {
             type: String,
+            required: true,
+            default: 'Guest',
+        },
+        times_correct: {
+            type: Number,
+            required: true,
+            default: 0,
+        },
+        times_incorrect: {
+            type: Number,
+            required: true,
+            default: 0,
+        },
+        correct_answers: {
+            type: Array,
             required: true,
         },
         incorrect_answers: {
             type: Array,
             required: false,
-        }
+        },
+        public: {
+            type: Boolean,
+            required: true,
+            default: true,
+        },
     },
     {
         timestamps: true
     }
 );
 
-QuestionSchema.post<Question>('save', function () {
+QuestionSchema.post<IQuestion>('save', function () {
     console.log(`Question saved: ${this.question}`)
 })
 
-export default mongoose.model<Question>('Question', QuestionSchema);
+QuestionSchema.plugin(random);
+
+export default mongoose.model<IQuestion>('Question', QuestionSchema);
