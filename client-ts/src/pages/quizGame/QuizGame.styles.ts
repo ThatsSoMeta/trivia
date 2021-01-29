@@ -5,8 +5,8 @@ export const QuizGameStyle = styled.div`
   flex-direction: column;
   align-items: center;
   color: white;
-  border: 2px solid red;
   width: 100%;
+  margin-top: 50px;
 
   > p {
     color: white;
@@ -16,21 +16,6 @@ export const QuizGameStyle = styled.div`
     color: white;
     font-size: 2rem;
     margin: 0;
-  }
-
-  h1 {
-    background-image: linear-gradient(180deg, white, blue);
-    background-size: 100%;
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    -moz-background-clip: text;
-    -moz-text-fill-color: transparent;
-    filter: drop-shadow(2px 2px gray);
-    font-size: 70px;
-    font-weight: 400;
-    text-align: center;
-    margin: 20px;
   }
 
   .start,
@@ -49,9 +34,24 @@ export const QuizGameStyle = styled.div`
     align-content: center;
   }
 
-  #difficulty-selector {
+  .quiz-selector {
     box-shadow: 5px 5px 5px cyan;
     background-color: black;
     padding: 0 10px 10px 10px;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin: 10px;
+    input, label {
+      margin: 5px;
+    }
   }
 `;

@@ -5,8 +5,16 @@ export default interface IQuestion extends Document {
     difficulty: string,
     type: string,
     question: string,
-    times_correct: number,
-    times_incorrect: number,
     correct_answers: string[],
     incorrect_answers: string[],
+    uploaded_by: string
 }
+
+export default interface IQuery {
+    select_difficulty: string[];
+    select_type: string[];
+    select_category: string[];
+    select_questionID: string[];
+    select_uploaded_by: string[];
+    select_amount: number;
+  }

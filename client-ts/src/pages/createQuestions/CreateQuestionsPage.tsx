@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useState } from "react";
-import { Question, QuestionType, addQuestion, Difficulty } from "../../API";
+import { Question, QType, addQuestion, Difficulty, testQuestion } from "../../API";
 import { CreateQuestionStyle } from "./CreateQuestion.styles";
 
 export const CreateQuestionsPage = () => {
@@ -15,7 +15,7 @@ export const CreateQuestionsPage = () => {
   const [loading, setLoading] = useState(false);
   const [question, setQuestion] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.UNSET);
-  const [type, setType] = useState("");
+  const [type, setType] = useState<QType>(QType.UNSET);
   const [category, setCategory] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [correctAnswers, setCorrectAnswers] = useState<string[]>([""]);
@@ -29,42 +29,15 @@ export const CreateQuestionsPage = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    const newQuestion: Question = {
+    const newQuestion= new Question(
       category,
-      correct_answers: correctAnswers.filter((answer) => answer !== ""),
+      type,
       difficulty,
       question,
-      incorrect_answers: [],
-      times_correct: 0,
-      times_incorrect: 0,
-      type: QuestionType.MULTIPLE_CHOICE,
-      _id: "",
-    };
-    if (type === "multiple choice") {
-      newQuestion.incorrect_answers = incorrectAnswers;
-      newQuestion.type = QuestionType.MULTIPLE_CHOICE;
-    }
-    if (type === "true or false") {
-      newQuestion.type = QuestionType.TRUE_FALSE;
-      if (correctAnswers[0] === "true") {
-        newQuestion.incorrect_answers = ["false"];
-      } else {
-        newQuestion.incorrect_answers = ["true"];
-      }
-    }
-    if (type === "open ended") {
-      newQuestion.incorrect_answers = [];
-      newQuestion.type = QuestionType.OPEN_ENDED;
-    }
-    if (type === "choose many") {
-      newQuestion.incorrect_answers = [];
-      newQuestion.type = QuestionType.CHOOSE_MANY;
-    } else {
-      newQuestion.correct_answers = correctAnswers.filter((_, i) => i < 1);
-    }
-    if (category === "other") {
-      newQuestion.category = newCategory.toLowerCase();
-    }
+      correctAnswers,
+      incorrectAnswers,
+      'Drewski'
+    );
     await addQuestion(newQuestion)
       .then(() => {
         setCategory("");
@@ -73,7 +46,7 @@ export const CreateQuestionsPage = () => {
         setIncorrectAnswers(["", "", ""]);
         setNewCategory("");
         setQuestion("");
-        setType("");
+        setType(QType.UNSET);
         setMessage("Successfully created question!");
         setUpdateComplete(true);
       })
@@ -90,19 +63,19 @@ export const CreateQuestionsPage = () => {
     }
   };
 
-  const toggleType = (level: string) => {
-    if (level.toLowerCase() === type) {
-      setType("");
+  const toggleType = (level: QType) => {
+    if (level === type) {
+      setType(QType.UNSET);
     } else {
-      setType(level.toLowerCase());
+      setType(level);
     }
   };
 
   const toggleCategory = (level: string) => {
-    if (level.toLowerCase() === category) {
+    if (level === category) {
       setCategory("");
     } else {
-      setCategory(level.toLowerCase());
+      setCategory(level);
     }
   };
 
@@ -126,11 +99,24 @@ export const CreateQuestionsPage = () => {
     setCorrectAnswers((prev) => [...prev, ""]);
   };
 
+  const handleTestClick = (question: Question) => {
+    question.correctGuess()
+    question.correctGuess()
+    question.correctGuess()
+    question.correctGuess()
+    question.incorrectGuess()
+    console.log(question.getCorrectRate())
+    console.log(question)
+    console.log(question.getAllAnswers())
+    question.ask()
+  }
+
   return (
     <>
       <header>
         <h2>Create New Question</h2>
       </header>
+      <button onClick={() => handleTestClick(testQuestion)}>Test Question Class</button>
       <CreateQuestionStyle>
         {loading ? (
           <h3>Loading...</h3>
@@ -202,39 +188,39 @@ export const CreateQuestionsPage = () => {
             <br />
             <input
               style={
-                type === "multiple choice" ? { boxShadow: "0 0 15px cyan" } : {}
+                type === QType.MULTIPLE_CHOICE ? { boxShadow: "0 0 15px cyan" } : {}
               }
               className="button"
               type="button"
               value="Multiple Choice"
-              onClick={(e) => toggleType(e.currentTarget.value)}
+              onClick={() => toggleType(QType.MULTIPLE_CHOICE)}
             />
             <input
               style={
-                type === "true or false" ? { boxShadow: "0 0 15px cyan" } : {}
+                type === QType.TRUE_FALSE ? { boxShadow: "0 0 15px cyan" } : {}
               }
               className="button"
               type="button"
               value="True or False"
-              onClick={(e) => toggleType(e.currentTarget.value)}
+              onClick={() => toggleType(QType.TRUE_FALSE)}
             />
             <input
               style={
-                type === "open ended" ? { boxShadow: "0 0 15px cyan" } : {}
+                type === QType.OPEN_ENDED ? { boxShadow: "0 0 15px cyan" } : {}
               }
               className="button"
               type="button"
               value="Open Ended"
-              onClick={(e) => toggleType(e.currentTarget.value)}
+              onClick={() => toggleType(QType.OPEN_ENDED)}
             />
             <input
               style={
-                type === "choose many" ? { boxShadow: "0 0 15px cyan" } : {}
+                type === QType.CHOOSE_MANY ? { boxShadow: "0 0 15px cyan" } : {}
               }
               className="button"
               type="button"
               value="Choose Many"
-              onClick={(e) => toggleType(e.currentTarget.value)}
+              onClick={() => toggleType(QType.CHOOSE_MANY)}
             />
             <br />
             <label className="field-label">Category:</label>
@@ -277,13 +263,13 @@ export const CreateQuestionsPage = () => {
               placeholder="Type your question here..."
             />
             <br />
-            {type === "choose many" ? (
-              <label className="field-label">Answers:</label>
-            ) : (
+            {type === QType.OPEN_ENDED ? (
               <label className="field-label">Answer:</label>
+            ) : (
+              <label className="field-label">Answers:</label>
             )}
             <br />
-            {type === "multiple choice" ? (
+            {type === QType.MULTIPLE_CHOICE ? (
               <div id="multiple-choice-answers">
                 <input
                   type="text"
@@ -341,34 +327,34 @@ export const CreateQuestionsPage = () => {
                 <br />
                 <input type="button" className="button" value="+" />
               </div>
-            ) : type === "true or false" ? (
+            ) : type === QType.TRUE_FALSE ? (
               <>
                 <input
                   style={
-                    correctAnswers[0] === "true"
+                    correctAnswers[0] === "True"
                       ? { boxShadow: "0 0 15px cyan" }
                       : {}
                   }
                   type="button"
                   className="button"
                   id="true"
-                  value="true"
-                  onClick={() => toggleTF(["true"])}
+                  value="True"
+                  onClick={() => toggleTF(["True"])}
                 />
                 <input
                   style={
-                    correctAnswers[0] === "false"
+                    correctAnswers[0] === "False"
                       ? { boxShadow: "0 0 15px cyan" }
                       : {}
                   }
                   type="button"
                   className="button"
                   id="false"
-                  value="false"
-                  onClick={() => toggleTF(["false"])}
+                  value="False"
+                  onClick={() => toggleTF(["False"])}
                 />
               </>
-            ) : type === "open ended" || type === "" ? (
+            ) : type === QType.OPEN_ENDED || type === QType.UNSET ? (
               <input
                 type="text"
                 className="question-input correct-answer"
@@ -376,7 +362,7 @@ export const CreateQuestionsPage = () => {
                 placeholder="Correct answer..."
                 onChange={(e) => setCorrectAnswers([e.currentTarget.value])}
               />
-            ) : type === "choose many" ? (
+            ) : type === QType.CHOOSE_MANY ? (
               <div>
                 <div id="choose-many-input">
                   {correctAnswers.map((_, index) => {

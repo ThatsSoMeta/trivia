@@ -1,6 +1,13 @@
-# Getting Started with Create React App
+__author__ = 'Drew Sexton'
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+I used many ideas of Thomas Weibenfalk and his quiz app tutorial found here: (https://www.youtube.com/watch?v=F2JCjVSZlG0&feature=youtu.be)
+I then decided to build that idea out a bit more than he did in the video. I used the same database (https://opentdb.com/api_config.php), but manipulated and saved them to my own database so that I could extract additional information, including how many times it was correctly guessed, as well as to provide other type options (open ended, choose many).
+
+I'm still a bit of a newbie, and got much help from Stack Overflow, including this helpful tidbit to help me randomize the questions returned from my queries: (https://stackoverflow.com/questions/39277670/how-to-find-random-record-in-mongoose).
+
+I spent a lot of time perusing documentation for MongoDB, Mongoose, Express, and other tools, trying to figure out the best ways to do certain things (and very likely never finding the best way to do anything in this project).
 
 ## Available Scripts
 

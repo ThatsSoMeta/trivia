@@ -1,6 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
-import { QuizGame, CreateQuestionsPage, HomePage, ViewQuestionsPage, EditQuestionsPage } from '../../pages';
+import {
+  QuizGame,
+  CreateQuestionsPage,
+  HomePage,
+  ViewQuestionsPage,
+  EditQuestionsPage,
+  OpenTriviaPage
+} from '../../pages';
 
 export const Navigation = () => {
   return (
@@ -25,6 +32,10 @@ export const Navigation = () => {
       <Route
         path='/questions/edit/:questionID'
         component={EditQuestionsPage}
+      />
+      <Route
+      path='/questions/retrieve'
+      component={OpenTriviaPage}
       />
     </BrowserRouter>
   )

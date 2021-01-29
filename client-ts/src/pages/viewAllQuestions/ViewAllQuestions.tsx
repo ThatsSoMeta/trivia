@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchAllQuestions, Question } from '../../API';
+import { deleteAllQuestions, fetchAllQuestions, Question, testQueryLimit } from '../../API';
 import { QuestionIndex } from '../../components';
 import { ViewQuestionsStyle } from './ViewAllQuestions.styles';
 
@@ -21,6 +21,7 @@ export const ViewQuestionsPage = () => {
     <ViewQuestionsStyle>
       <h1>All Questions: </h1>
       {loading && <h3>Loading...</h3>}
+      <button onClick={() => testQueryLimit(10)}>Test Query Limit</button>
       {questions &&
       <table id='question-table'>
         <thead>
@@ -40,7 +41,6 @@ export const ViewQuestionsPage = () => {
               <QuestionIndex
               question={question}
               key={question._id}
-              questions={questions}
               />
             ))
           }

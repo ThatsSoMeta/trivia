@@ -48,7 +48,12 @@ const QuestionSchema: Schema = new Schema(
         incorrect_answers: {
             type: Array,
             required: false,
-        }
+        },
+        public: {
+            type: Boolean,
+            required: true,
+            default: true,
+        },
     },
     {
         timestamps: true

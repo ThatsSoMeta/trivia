@@ -1,9 +1,10 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import {
   Question,
-  QuestionType,
+  QType,
   updateQuestion,
   fetchSomeQuestions,
+  fetchSingleQuestion,
   Difficulty,
   deleteQuestion,
 } from "../../API";
@@ -26,7 +27,7 @@ export const EditQuestionsPage = () => {
   const [loading, setLoading] = useState(false);
   const [question, setQuestion] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.UNSET);
-  const [type, setType] = useState("");
+  const [type, setType] = useState<QType>(QType.UNSET);
   const [category, setCategory] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [correctAnswers, setCorrectAnswers] = useState<string[]>([""]);
@@ -37,15 +38,11 @@ export const EditQuestionsPage = () => {
   ]);
   const [questionID, setQuestionID] = useState("");
   const [message, setMessage] = useState("");
-  const [timesCorrect, setTimesCorrect] = useState<number>(0);
-  const [timesIncorrect, setTimesIncorrect] = useState<number>(0);
   const [updateComplete, setUpdateComplete] = useState<boolean>(false);
-
-  const params = useParams();
 
   useEffect(() => {
     setLoading(true);
-    fetchSomeQuestions(params)
+    fetchSingleQuestion(questionID)
       .then((data) => {
         data = data[0];
         setQuestion(data.question);
@@ -57,36 +54,13 @@ export const EditQuestionsPage = () => {
         }
         setIncorrectAnswers(data.incorrect_answers);
         setQuestionID(data._id);
-        if (data.times_correct) {
-          setTimesCorrect(data.times_correct);
-        } else {
-          setTimesCorrect(0);
-        }
-        if (data.times_incorrect) {
-          setTimesIncorrect(data.times_incorrect);
-        } else {
-          setTimesIncorrect(0);
-        }
         if (categories.includes(data.category)) {
           setCategory(data.category);
         } else {
           setCategory("other");
           setNewCategory(data.category);
         }
-        switch (data.type) {
-          case "multiple-choice":
-            setType("multiple choice");
-            break;
-          case "true-false":
-            setType("true or false");
-            break;
-          case "open-ended":
-            setType("open ended");
-            break;
-          case "choose-many":
-            setType("choose many");
-            break;
-        }
+        setType(data.type)
       })
       .catch((error) => console.error(error));
     setLoading(false);
@@ -104,42 +78,50 @@ export const EditQuestionsPage = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
-    const newQuestion: Question = {
+    const newQuestion = new Question(
       category,
-      correct_answers: correctAnswers.filter((answer) => answer !== ""),
+      type,
       difficulty,
       question,
-      incorrect_answers: [],
-      times_correct: timesCorrect,
-      times_incorrect: timesIncorrect,
-      type: QuestionType.MULTIPLE_CHOICE,
-      _id: questionID,
-    };
-    if (type === "multiple choice") {
-      newQuestion.incorrect_answers = incorrectAnswers;
-      newQuestion.type = QuestionType.MULTIPLE_CHOICE;
-    }
-    if (type === "true or false") {
-      newQuestion.type = QuestionType.TRUE_FALSE;
-      if (correctAnswers[0] === "true") {
-        newQuestion.incorrect_answers = ["false"];
-      } else {
-        newQuestion.incorrect_answers = ["true"];
+      correctAnswers.filter((answer) => answer !== ''),
+      incorrectAnswers,
+      "Drewski"
+      )
+      if (category === "other") {
+        newQuestion.category = newCategory;
       }
-    }
-    if (type === "open ended") {
-      newQuestion.incorrect_answers = [];
-      newQuestion.type = QuestionType.OPEN_ENDED;
-    }
-    if (type === "choose many") {
-      newQuestion.incorrect_answers = [];
-      newQuestion.type = QuestionType.CHOOSE_MANY;
-    } else {
-      newQuestion.correct_answers = correctAnswers.filter((_, i) => i < 1);
-    }
-    if (category === "other") {
-      newQuestion.category = newCategory.toLowerCase();
-    }
+      // category,
+      // correct_answers: correctAnswers.filter((answer) => answer !== ""),
+      // difficulty,
+      // question,
+      // incorrect_answers: [],
+      // times_correct: timesCorrect,
+      // times_incorrect: timesIncorrect,
+      // type: QuestionType.MULTIPLE_CHOICE,
+      // uploaded_by: 'Guest',
+      // _id: questionID,
+    // if (type === "multiple choice") {
+    //   newQuestion.incorrect_answers = incorrectAnswers;
+    //   newQuestion.type = QuestionType.MULTIPLE_CHOICE;
+    // }
+    // if (type === "true or false") {
+    //   newQuestion.type = QuestionType.TRUE_FALSE;
+    //   if (correctAnswers[0] === "True") {
+    //     newQuestion.incorrect_answers = ["False"];
+    //   } else {
+    //     newQuestion.incorrect_answers = ["True"];
+    //   }
+    // }
+    // if (type === "open ended") {
+    //   newQuestion.incorrect_answers = [];
+    //   newQuestion.type = QuestionType.OPEN_ENDED;
+    // }
+    // if (type === "choose many") {
+    //   newQuestion.incorrect_answers = [];
+    //   newQuestion.type = QuestionType.CHOOSE_MANY;
+    // } else {
+    //   newQuestion.correct_answers = correctAnswers.filter((_, i) => i < 1);
+    // }
     await updateQuestion(questionID, newQuestion).then(() => {
       setMessage("Question Updated!");
       setUpdateComplete(true);
@@ -155,25 +137,9 @@ export const EditQuestionsPage = () => {
     }
   };
 
-  const toggleType = (level: string) => {
-    switch (level) {
-      case "multiple choice":
-        level = QuestionType.MULTIPLE_CHOICE;
-        break;
-      case "open ended":
-        level = QuestionType.OPEN_ENDED;
-        break;
-      case "choose many":
-        level = QuestionType.CHOOSE_MANY;
-        break;
-      case "true or false":
-        level = QuestionType.TRUE_FALSE;
-        break;
-      default:
-        level = QuestionType.UNSET;
-    }
+  const toggleType = (level: QType) => {
     if (level === type) {
-      setType(QuestionType.UNSET);
+      setType(QType.UNSET);
     } else {
       setType(level);
     }
@@ -271,39 +237,39 @@ export const EditQuestionsPage = () => {
             <br />
             <input
               style={
-                type === "multiple choice" ? { boxShadow: "0 0 15px cyan" } : {}
+                type === QType.MULTIPLE_CHOICE ? { boxShadow: "0 0 15px cyan" } : {}
               }
               className="button"
               type="button"
               value="Multiple Choice"
-              onClick={(e) => toggleType(e.currentTarget.value)}
+              onClick={() => toggleType(QType.MULTIPLE_CHOICE)}
             />
             <input
               style={
-                type === "true or false" ? { boxShadow: "0 0 15px cyan" } : {}
+                type === QType.TRUE_FALSE ? { boxShadow: "0 0 15px cyan" } : {}
               }
               className="button"
               type="button"
               value="True or False"
-              onClick={(e) => toggleType(e.currentTarget.value)}
+              onClick={() => toggleType(QType.TRUE_FALSE)}
             />
             <input
               style={
-                type === "open ended" ? { boxShadow: "0 0 15px cyan" } : {}
+                type === QType.OPEN_ENDED ? { boxShadow: "0 0 15px cyan" } : {}
               }
               className="button"
               type="button"
               value="Open Ended"
-              onClick={(e) => toggleType(e.currentTarget.value)}
+              onClick={() => toggleType(QType.OPEN_ENDED)}
             />
             <input
               style={
-                type === "choose many" ? { boxShadow: "0 0 15px cyan" } : {}
+                type === QType.CHOOSE_MANY ? { boxShadow: "0 0 15px cyan" } : {}
               }
               className="button"
               type="button"
               value="Choose Many"
-              onClick={(e) => toggleType(e.currentTarget.value)}
+              onClick={() => toggleType(QType.CHOOSE_MANY)}
             />
             <br />
             <label className="field-label">Category:</label>
@@ -364,13 +330,13 @@ export const EditQuestionsPage = () => {
               placeholder="Type your question here..."
             />
             <br />
-            {type === "choose many" ? (
+            {type === QType.CHOOSE_MANY ? (
               <label className="field-label">Answers:</label>
             ) : (
               <label className="field-label">Answer:</label>
             )}
             <br />
-            {type === "multiple choice" ? (
+            {type === QType.MULTIPLE_CHOICE ? (
               <div id="multiple-choice-answers">
                 <input
                   type="text"
@@ -426,34 +392,34 @@ export const EditQuestionsPage = () => {
                   }
                 />
               </div>
-            ) : type === "true or false" ? (
+            ) : type === QType.TRUE_FALSE ? (
               <>
                 <input
                   style={
-                    correctAnswers[0] === "true"
+                    correctAnswers[0] === "True"
                       ? { boxShadow: "0 0 15px cyan" }
                       : {}
                   }
                   type="button"
                   className="button"
                   id="true"
-                  value="true"
-                  onClick={() => toggleTF(["true"])}
+                  value="True"
+                  onClick={() => toggleTF(["True"])}
                 />
                 <input
                   style={
-                    correctAnswers[0] === "false"
+                    correctAnswers[0] === "False"
                       ? { boxShadow: "0 0 15px cyan" }
                       : {}
                   }
                   type="button"
                   className="button"
                   id="false"
-                  value="false"
-                  onClick={() => toggleTF(["false"])}
+                  value="False"
+                  onClick={() => toggleTF(["False"])}
                 />
               </>
-            ) : type === "open ended" ? (
+            ) : type === QType.OPEN_ENDED ? (
               <input
                 type="text"
                 className="question-input"
@@ -465,7 +431,7 @@ export const EditQuestionsPage = () => {
                   updateAnswers(e)
                 }
               />
-            ) : type === "choose many" ? (
+            ) : type === QType.CHOOSE_MANY ? (
               <div>
                 <div id="choose-many-input">
                   {correctAnswers.map((_, index) => {

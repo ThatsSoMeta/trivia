@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Question, deleteQuestion, QuestionType } from '../../API';
-import { capitalize } from '../../utils';
+import { Question, deleteQuestion, QType } from '../../API';
+import { capitalize, htmlDecode } from '../../utils';
 import { QuestionIndexStyle } from './QuestionIndex.styles'
 import EditIcon from '../../images/edit-blue.png';
 import DeleteIcon from '../../images/delete-red.png';
 
 export interface IQuestionProps {
   question: Question,
-  questions: Question[],
 }
 
 export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) => {
@@ -15,6 +14,9 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
   const [correctAnswerRate, setCorrectAnswerRate] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [difficultyColor, setDifficultyColor] = useState('');
+  const [questionType, setQuestionType] = useState<QType>(QType.UNSET);
+  const [questionText, setQuestionText] = useState('')
+  const [submittingQuestion, setSubmittingQuestion] = useState(false);
 
   let {
     category,
@@ -26,24 +28,28 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
     _id
   } = props.question
 
-
   useEffect(() => {
     setLoading(true)
     switch(type) {
-      case QuestionType.CHOOSE_MANY:
+      case QType.CHOOSE_MANY:
         setTypeLabelText('Many');
+        setQuestionType(QType.CHOOSE_MANY);
         break;
-      case QuestionType.MULTIPLE_CHOICE:
+      case QType.MULTIPLE_CHOICE:
         setTypeLabelText('MC');
+        setQuestionType(QType.MULTIPLE_CHOICE);
         break;
-      case QuestionType.OPEN_ENDED:
-        setTypeLabelText('Open')
+      case QType.OPEN_ENDED:
+        setTypeLabelText('Open');
+        setQuestionType(QType.OPEN_ENDED);
         break;
-      case QuestionType.TRUE_FALSE:
-        setTypeLabelText('T/F')
+      case QType.TRUE_FALSE:
+        setTypeLabelText('T/F');
+        setQuestionType(QType.TRUE_FALSE);
         break;
       default:
-        setTypeLabelText('N/A')
+        setTypeLabelText('N/A');
+        setQuestionType(QType.UNSET);
     };
     switch(difficulty) {
       case 'kids':
@@ -62,10 +68,18 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
         setDifficultyColor('blue');
         break;
     }
-
     if (times_correct + times_incorrect > 0) {
       setCorrectAnswerRate(times_correct / (times_correct + times_incorrect))
     }
+    setQuestionText(htmlDecode(question))
+    // const newQuestion: Question = {
+    //   category,
+    //   type: questionType,
+    //   difficulty,
+    //   question: htmlDecode(question),
+    //   correct_answers: []
+
+    // }
     setLoading(false)
   }, [times_correct, times_incorrect, type, loading])
 
@@ -100,7 +114,7 @@ export const QuestionIndex = (props: React.PropsWithChildren<IQuestionProps>) =>
       </QuestionIndexStyle> :
       <QuestionIndexStyle onClick={() => console.log(props.question)} >
         <td id='category'>{capitalize(category)}</td>
-        <td id='question'>{capitalize(question)}</td>
+        <td id='question'>{htmlDecode(question)}</td>
         {/* <td id='answer'>{correct_answers.map((answer) => {
           return <><span>{answer}</span><br /></>
         })}</td> */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { AnswerObject } from '../../pages/quizGame/QuizGame';
-import { QuestionStyle } from './QuestionCard.styles';
+import { ButtonWrapper, QuestionStyle } from './QuestionCard.styles';
+import {v4 as uuidv4} from 'uuid';
 
 type Props = {
     question: string;
@@ -27,17 +28,21 @@ const QuestionCard: React.FC<Props> = ({
             Question: {questionNum} / {totalQs}
         </p>
         <p dangerouslySetInnerHTML={{__html: question}} />
-        <div>
+        <div id='answer-field'>
             {type === 'choose-many' ?
             <input type='text' /> :
-            type === 'open ended' ?
+            type === 'open-ended' ?
             <input type='text' /> :
             answers.map(answer => (
-                <div key={answer}>
+                <ButtonWrapper
+                    key={uuidv4()}
+                    correct={userAnswer?.correct_answers[0] === answer}
+                    userClicked={userAnswer?.answers[0] === answer}
+                >
                     <button disabled={!!userAnswer} onClick={callback} value={answer}>
                         <span dangerouslySetInnerHTML={{ __html: answer }} />
                     </button>
-                </div>
+                </ButtonWrapper>
             ))}
         </div>
     </QuestionStyle>

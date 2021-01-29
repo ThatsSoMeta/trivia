@@ -27,8 +27,13 @@ export const NavBar = () => {
         </a>
       </div>
       <div className='navButton'>
-        <a href='/questions/viewAll' onClick={() => handleClick('/view/questions')}>
+        <a href='/questions/viewAll' onClick={() => handleClick('/questions/viewAll')}>
           All Questions
+        </a>
+      </div>
+      <div className='navButton'>
+        <a href='/questions/retrieve' onClick={() => handleClick('/view/questions')}>
+          Open Trivia
         </a>
       </div>
     </NavBarStyle>
